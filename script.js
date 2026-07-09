@@ -65,3 +65,79 @@
   handleFormSubmit('contact-form', 'form-status');
   handleFormSubmit('modal-form', 'modal-form-status');
 })();
+
+(function () {
+  // CSS :hover already drives the glass-card highlight; this only reinforces
+  // it for pointers that land on a card without generating a move event
+  // (e.g. a card appearing/scrolling under an already-stationary cursor).
+  var hoverTargets = document.querySelectorAll('.card, .case, .testimonial');
+  hoverTargets.forEach(function (el) {
+    el.addEventListener('mouseenter', function () {
+      el.classList.add('is-hover');
+    });
+    el.addEventListener('mouseleave', function () {
+      el.classList.remove('is-hover');
+    });
+  });
+})();
+
+(function () {
+  var stats = document.querySelector('.stats');
+  if (!stats) return;
+
+  var LIMIT = 40;
+  var startX = 0;
+  var startY = 0;
+  var originX = 0;
+  var originY = 0;
+  var dragging = false;
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function setTransform(x, y) {
+    stats.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+  }
+
+  function pointerPos(e) {
+    if (e.touches && e.touches.length) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    return { x: e.clientX, y: e.clientY };
+  }
+
+  function onDragStart(e) {
+    dragging = true;
+    stats.classList.add('is-dragging');
+    var pos = pointerPos(e);
+    startX = pos.x;
+    startY = pos.y;
+    document.addEventListener('mousemove', onDragMove);
+    document.addEventListener('mouseup', onDragEnd);
+    document.addEventListener('touchmove', onDragMove, { passive: false });
+    document.addEventListener('touchend', onDragEnd);
+  }
+
+  function onDragMove(e) {
+    if (!dragging) return;
+    if (e.cancelable) e.preventDefault();
+    var pos = pointerPos(e);
+    originX = clamp(pos.x - startX, -LIMIT, LIMIT);
+    originY = clamp(pos.y - startY, -LIMIT, LIMIT);
+    setTransform(originX, originY);
+  }
+
+  function onDragEnd() {
+    dragging = false;
+    stats.classList.remove('is-dragging');
+    setTransform(0, 0);
+    document.removeEventListener('mousemove', onDragMove);
+    document.removeEventListener('mouseup', onDragEnd);
+    document.removeEventListener('touchmove', onDragMove);
+    document.removeEventListener('touchend', onDragEnd);
+  }
+
+  stats.addEventListener('mousedown', onDragStart);
+  stats.addEventListener('touchstart', onDragStart, { passive: true });
+})();

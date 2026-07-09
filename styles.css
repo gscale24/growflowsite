@@ -331,7 +331,8 @@ button:focus-visible {
   transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease;
 }
 
-.card:hover {
+.card:hover,
+.card.is-hover {
   backdrop-filter: blur(22px) saturate(160%);
   -webkit-backdrop-filter: blur(22px) saturate(160%);
   box-shadow: 0 28px 56px rgba(0, 0, 0, 0.45);
@@ -394,7 +395,8 @@ button:focus-visible {
   transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease;
 }
 
-.case:hover {
+.case:hover,
+.case.is-hover {
   backdrop-filter: blur(22px) saturate(160%);
   -webkit-backdrop-filter: blur(22px) saturate(160%);
   box-shadow: 0 28px 56px rgba(0, 0, 0, 0.45);
@@ -515,6 +517,16 @@ button:focus-visible {
   border-radius: var(--radius);
   padding: 22px 30px;
   box-shadow: 0 22px 44px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+}
+
+.stats.is-dragging {
+  cursor: grabbing;
+  transition: none;
 }
 
 .stat {
@@ -536,10 +548,23 @@ button:focus-visible {
 /* Testimonials */
 
 .testimonial {
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.16), var(--color-glass-bg) 60%);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid var(--color-glass-border);
   border-radius: var(--radius);
   padding: 28px 24px;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease;
+}
+
+.testimonial:hover,
+.testimonial.is-hover {
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.45);
+  transform: scale(1.02);
+  border-color: rgba(201, 122, 62, 0.55);
 }
 
 .testimonial__text {
