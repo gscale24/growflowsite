@@ -65,6 +65,15 @@ button:focus-visible {
 
 /* Header */
 
+.header__scrim {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 130px;
+  z-index: 99;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg) 65%, rgba(15, 43, 30, 0) 100%);
+}
+
 .header {
   position: fixed;
   top: 20px;
@@ -73,8 +82,9 @@ button:focus-visible {
   z-index: 100;
   width: calc(100% - 40px);
   max-width: 1120px;
-  background: rgba(15, 43, 30, 0.78);
-  backdrop-filter: saturate(180%) blur(14px);
+  background: rgba(13, 37, 26, 0.92);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
   border: 1px solid var(--color-border);
   border-radius: 999px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
@@ -334,6 +344,8 @@ button:focus-visible {
 /* Service cards */
 
 .card {
+  position: relative;
+  overflow: hidden;
   background: linear-gradient(150deg, rgba(255, 255, 255, 0.16), var(--color-glass-bg) 60%);
   backdrop-filter: blur(16px) saturate(150%);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
@@ -352,13 +364,35 @@ button:focus-visible {
   border-color: rgba(201, 122, 62, 0.55);
 }
 
+.card__glow {
+  position: absolute;
+  z-index: 0;
+  top: -40%;
+  right: -25%;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0.3;
+  filter: blur(55px);
+  pointer-events: none;
+}
+
 .card__icon {
+  position: relative;
+  z-index: 1;
   width: 44px;
   height: 44px;
   border-radius: 12px;
   background: var(--color-accent-soft-bg);
   border: 1px solid var(--color-accent-soft-border);
   margin-bottom: 20px;
+}
+
+.card__title,
+.card__text {
+  position: relative;
+  z-index: 1;
 }
 
 .card__title {
