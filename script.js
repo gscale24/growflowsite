@@ -12,6 +12,16 @@
         nav.classList.remove('is-open');
       });
     });
+
+    document.addEventListener('click', function (e) {
+      if (nav.classList.contains('is-open') && !nav.contains(e.target) && !burger.contains(e.target)) {
+        nav.classList.remove('is-open');
+      }
+    });
+
+    window.addEventListener('scroll', function () {
+      nav.classList.remove('is-open');
+    }, { passive: true });
   }
 
   var modal = document.getElementById('modal');
@@ -31,6 +41,9 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       modal.classList.remove('is-open');
+      if (nav) {
+        nav.classList.remove('is-open');
+      }
     }
   });
 
