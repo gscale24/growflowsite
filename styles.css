@@ -16,8 +16,8 @@
   --radius: 14px;
   --container-width: 1160px;
   --header-height: 88px;
-  --color-glass-bg: rgba(244, 241, 232, 0.05);
-  --color-glass-border: rgba(244, 241, 232, 0.12);
+  --color-glass-bg: rgba(255, 255, 255, 0.09);
+  --color-glass-border: rgba(255, 255, 255, 0.16);
   font-size: 16px;
 }
 
@@ -195,12 +195,50 @@ button:focus-visible {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background:
-    radial-gradient(circle at 12% 18%, rgba(201, 122, 62, 0.28) 0%, rgba(201, 122, 62, 0) 42%),
-    radial-gradient(circle at 82% 8%, rgba(27, 58, 40, 0.95) 0%, rgba(27, 58, 40, 0) 55%),
-    radial-gradient(circle at 78% 78%, rgba(201, 122, 62, 0.2) 0%, rgba(201, 122, 62, 0) 45%),
-    radial-gradient(circle at 25% 92%, rgba(21, 51, 31, 0.9) 0%, rgba(21, 51, 31, 0) 50%),
-    var(--color-bg);
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.blob--orange {
+  background: var(--color-accent);
+}
+
+.blob--green {
+  background: #2f6349;
+}
+
+.hero__bg .blob {
+  filter: blur(90px);
+}
+
+.hero__bg .blob--a {
+  width: 560px;
+  height: 560px;
+  top: -140px;
+  left: 62%;
+  opacity: 0.4;
+}
+
+.hero__bg .blob--b {
+  width: 460px;
+  height: 460px;
+  top: 40%;
+  left: 78%;
+  opacity: 0.6;
+}
+
+.hero__bg .blob--c {
+  width: 340px;
+  height: 340px;
+  top: 68%;
+  left: 52%;
+  opacity: 0.28;
 }
 
 .hero__inner {
@@ -296,20 +334,22 @@ button:focus-visible {
 /* Service cards */
 
 .card {
-  background: var(--color-glass-bg);
-  backdrop-filter: blur(18px) saturate(140%);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.16), var(--color-glass-bg) 60%);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius);
   padding: 32px 24px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease;
 }
 
 .card:hover {
-  background: rgba(244, 241, 232, 0.09);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
-  transform: translateY(-6px) scale(1.015);
-  border-color: rgba(201, 122, 62, 0.5);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.45);
+  transform: scale(1.02);
+  border-color: rgba(201, 122, 62, 0.55);
 }
 
 .card__icon {
@@ -335,33 +375,28 @@ button:focus-visible {
 /* Case cards */
 
 .case {
-  background: var(--color-glass-bg);
-  backdrop-filter: blur(18px) saturate(140%);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.16), var(--color-glass-bg) 60%);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease;
 }
 
 .case:hover {
-  background: rgba(244, 241, 232, 0.09);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
-  transform: translateY(-6px) scale(1.015);
-  border-color: rgba(201, 122, 62, 0.5);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.45);
+  transform: scale(1.02);
+  border-color: rgba(201, 122, 62, 0.55);
 }
 
 .case__image {
   aspect-ratio: 4 / 3;
   background: var(--color-placeholder);
   border: 1px solid var(--color-accent-faint-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
 }
 
 .case__body {
@@ -394,13 +429,51 @@ button:focus-visible {
   background: var(--color-placeholder);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
+}
+
+.placeholder-visual {
+  position: relative;
+  overflow: hidden;
+}
+
+.placeholder-visual .blob {
+  filter: blur(50px);
+}
+
+.placeholder-visual .blob--a {
+  width: 65%;
+  aspect-ratio: 1;
+  top: -20%;
+  left: 38%;
+  opacity: 0.4;
+}
+
+.placeholder-visual .blob--b {
+  width: 55%;
+  aspect-ratio: 1;
+  bottom: -22%;
+  left: -12%;
+  opacity: 0.55;
+}
+
+.placeholder-visual .blob--c {
+  width: 40%;
+  aspect-ratio: 1;
+  top: 40%;
+  left: 55%;
+  opacity: 0.22;
+}
+
+.placeholder-label {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  font-size: 0.68rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  color: var(--color-text-muted);
+  opacity: 0.55;
+  z-index: 1;
 }
 
 .about__body {
@@ -421,9 +494,18 @@ button:focus-visible {
 }
 
 .stats {
+  position: relative;
+  z-index: 2;
   display: flex;
-  gap: 40px;
+  gap: 32px;
   margin-top: 32px;
+  margin-left: -96px;
+  width: fit-content;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius);
+  padding: 22px 30px;
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.4);
 }
 
 .stat {
@@ -663,8 +745,14 @@ button:focus-visible {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .about,
   .contacts {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 700px) {
+  .about {
     grid-template-columns: 1fr;
     gap: 32px;
   }
@@ -676,6 +764,10 @@ button:focus-visible {
   .about__body {
     margin-left: 0;
     padding: 32px;
+  }
+
+  .stats {
+    margin-left: 0;
   }
 }
 
@@ -723,6 +815,22 @@ button:focus-visible {
 
   .hero__title {
     letter-spacing: -0.02em;
+  }
+
+  .hero__bg .blob--a {
+    width: 320px;
+    height: 320px;
+    opacity: 0.28;
+  }
+
+  .hero__bg .blob--b {
+    width: 260px;
+    height: 260px;
+    opacity: 0.4;
+  }
+
+  .hero__bg .blob--c {
+    display: none;
   }
 
   .section {
