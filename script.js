@@ -67,9 +67,9 @@
 })();
 
 (function () {
-  var section = document.getElementById('scroll-canvas');
-  var canvas = document.getElementById('scroll-canvas-el');
-  if (!section || !canvas || !canvas.getContext) return;
+  var hero = document.getElementById('hero');
+  var canvas = document.getElementById('hero-canvas');
+  if (!hero || !canvas || !canvas.getContext) return;
 
   var ctx = canvas.getContext('2d');
   var isMobile = window.matchMedia('(max-width: 720px)').matches;
@@ -90,49 +90,70 @@
   resize();
   window.addEventListener('resize', resize);
 
+  // Scroll progress across the hero's own height (0 at top, 1 once scrolled past it).
   var targetProgress = 0;
   var currentProgress = 0;
 
   function updateTargetProgress() {
     if (isMobile) return;
-    var rect = section.getBoundingClientRect();
-    var total = rect.height - window.innerHeight;
-    if (total <= 0) {
-      targetProgress = 0;
-      return;
-    }
-    targetProgress = Math.max(0, Math.min(1, -rect.top / total));
+    var rect = hero.getBoundingClientRect();
+    var height = hero.offsetHeight || 1;
+    targetProgress = Math.max(0, Math.min(1, -rect.top / height));
   }
 
   window.addEventListener('scroll', updateTargetProgress, { passive: true });
   updateTargetProgress();
+
+  // Cursor parallax: mouse position within the hero, smoothed independently of scroll.
+  var targetMouseX = 0.5;
+  var targetMouseY = 0.5;
+  var mouseX = 0.5;
+  var mouseY = 0.5;
+
+  if (!isMobile) {
+    hero.addEventListener('mousemove', function (e) {
+      var rect = hero.getBoundingClientRect();
+      targetMouseX = (e.clientX - rect.left) / rect.width;
+      targetMouseY = (e.clientY - rect.top) / rect.height;
+    });
+
+    hero.addEventListener('mouseleave', function () {
+      targetMouseX = 0.5;
+      targetMouseY = 0.5;
+    });
+  }
 
   var visible = true;
   if ('IntersectionObserver' in window) {
     var observer = new IntersectionObserver(function (entries) {
       visible = entries[0].isIntersecting;
     });
-    observer.observe(section);
+    observer.observe(hero);
   }
 
-  function draw(progress, t) {
+  // Per-blob cursor-parallax strength: closer "layer" reacts more, farther one less.
+  var PARALLAX = isMobile ? [0, 0, 0] : [0.05, 0.03, 0.02];
+
+  function draw(progress, mx, my, t) {
     var w = canvas.clientWidth;
     var h = canvas.clientHeight;
     ctx.clearRect(0, 0, w, h);
 
     var cx = w / 2;
     var cy = h / 2;
+    var offsetX = (mx - 0.5) * w;
+    var offsetY = (my - 0.5) * h;
 
     var blobs = [
       {
-        x: lerp(w * 0.24, cx - w * 0.06, progress) + Math.sin(t * 0.0006) * 18,
-        y: lerp(h * 0.28, cy, progress) + Math.cos(t * 0.0005) * 18,
+        x: lerp(w * 0.62, cx - w * 0.06, progress) + Math.sin(t * 0.0006) * 18 + offsetX * PARALLAX[0],
+        y: lerp(h * 0.1, cy, progress) + Math.cos(t * 0.0005) * 18 + offsetY * PARALLAX[0],
         r: lerp(w * 0.24, w * 0.17, progress),
         color: 'rgba(201, 122, 62, ' + (0.5 - progress * 0.15).toFixed(3) + ')'
       },
       {
-        x: lerp(w * 0.78, cx + w * 0.07, progress) + Math.cos(t * 0.0007) * 22,
-        y: lerp(h * 0.68, cy + h * 0.05, progress) + Math.sin(t * 0.0006) * 22,
+        x: lerp(w * 0.85, cx + w * 0.07, progress) + Math.cos(t * 0.0007) * 22 + offsetX * PARALLAX[1],
+        y: lerp(h * 0.55, cy + h * 0.05, progress) + Math.sin(t * 0.0006) * 22 + offsetY * PARALLAX[1],
         r: lerp(w * 0.19, w * 0.25, progress),
         color: 'rgba(79, 122, 74, ' + (0.45 + progress * 0.2).toFixed(3) + ')'
       }
@@ -140,8 +161,8 @@
 
     if (!isMobile) {
       blobs.push({
-        x: lerp(w * 0.5, cx, progress) + Math.sin(t * 0.0004 + 2) * 14,
-        y: lerp(h * 0.88, cy + h * 0.14, progress) + Math.cos(t * 0.0004) * 14,
+        x: lerp(w * 0.55, cx, progress) + Math.sin(t * 0.0004 + 2) * 14 + offsetX * PARALLAX[2],
+        y: lerp(h * 0.85, cy + h * 0.14, progress) + Math.cos(t * 0.0004) * 14 + offsetY * PARALLAX[2],
         r: lerp(w * 0.13, w * 0.1, progress),
         color: 'rgba(201, 122, 62, ' + (0.3 + progress * 0.1).toFixed(3) + ')'
       });
@@ -164,13 +185,15 @@
         targetProgress = (Math.sin(t * 0.00025) + 1) / 2;
       }
       currentProgress = lerp(currentProgress, targetProgress, 0.08);
-      draw(currentProgress, t);
+      mouseX = lerp(mouseX, targetMouseX, 0.08);
+      mouseY = lerp(mouseY, targetMouseY, 0.08);
+      draw(currentProgress, mouseX, mouseY, t);
     }
     requestAnimationFrame(loop);
   }
 
   if (reduceMotion) {
-    draw(0.5, 0);
+    draw(0.5, 0.5, 0.5, 0);
   } else {
     requestAnimationFrame(loop);
   }

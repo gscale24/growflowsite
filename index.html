@@ -35,25 +35,15 @@
 
 <main>
 
-  <section class="hero">
+  <section class="hero" id="hero">
     <!-- TODO: заменить на реальное фото команды/продукта, когда будет готово -->
-    <div class="hero__bg" aria-hidden="true">
-      <span class="blob blob--orange blob--a"></span>
-      <span class="blob blob--green blob--b"></span>
-      <span class="blob blob--orange blob--c"></span>
-    </div>
+    <canvas class="hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
     <div class="container hero__inner">
       <h1 class="hero__title">Маркетинг, который <span class="accent">двигает</span> бизнес вперёд</h1>
       <p class="hero__subtitle">Мы помогаем компаниям расти с помощью продуманных стратегий, digital-продвижения и креатива, который работает на результат.</p>
       <button class="cta" data-open-modal>Оставить заявку</button>
     </div>
   </section>
-
-  <div class="scroll-canvas" id="scroll-canvas" aria-hidden="true">
-    <div class="scroll-canvas__sticky">
-      <canvas class="scroll-canvas__el" id="scroll-canvas-el"></canvas>
-    </div>
-  </div>
 
   <section class="section" id="services">
     <div class="container">
