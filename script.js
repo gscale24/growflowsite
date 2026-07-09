@@ -67,13 +67,24 @@
 })();
 
 (function () {
-  // CSS :hover already drives the glass-card highlight; this only reinforces
-  // it for pointers that land on a card without generating a move event
-  // (e.g. a card appearing/scrolling under an already-stationary cursor).
-  var hoverTargets = document.querySelectorAll('.card, .case, .testimonial');
-  hoverTargets.forEach(function (el) {
-    el.addEventListener('mouseenter', function () {
+  // Reusable cursor-following glow for every glass card (services, cases,
+  // testimonials, values). Visibility is driven purely by mouseenter/
+  // mouseleave (never by mousemove), and the glow position is seeded the
+  // instant the pointer enters so it never waits for a first move to show up.
+  // mousemove only updates the position of an already-visible glow.
+  function setGlowPosition(el, e) {
+    var rect = el.getBoundingClientRect();
+    el.style.setProperty('--glow-x', (e.clientX - rect.left) + 'px');
+    el.style.setProperty('--glow-y', (e.clientY - rect.top) + 'px');
+  }
+
+  document.querySelectorAll('.glow-card').forEach(function (el) {
+    el.addEventListener('mouseenter', function (e) {
+      setGlowPosition(el, e);
       el.classList.add('is-hover');
+    });
+    el.addEventListener('mousemove', function (e) {
+      setGlowPosition(el, e);
     });
     el.addEventListener('mouseleave', function () {
       el.classList.remove('is-hover');
@@ -82,62 +93,88 @@
 })();
 
 (function () {
-  var stats = document.querySelector('.stats');
-  if (!stats) return;
+  var viewport = document.getElementById('values-viewport');
+  var dotsContainer = document.getElementById('values-dots');
+  var prevBtn = document.getElementById('values-prev');
+  var nextBtn = document.getElementById('values-next');
+  if (!viewport || !dotsContainer) return;
 
-  var LIMIT = 40;
-  var startX = 0;
-  var startY = 0;
-  var originX = 0;
-  var originY = 0;
-  var dragging = false;
+  var cards = Array.prototype.slice.call(viewport.querySelectorAll('.values__card'));
+  if (!cards.length) return;
 
-  function clamp(value, min, max) {
-    return Math.max(min, Math.min(max, value));
+  var dots = cards.map(function (_, i) {
+    var dot = document.createElement('button');
+    dot.className = 'values__dot';
+    dot.setAttribute('aria-label', 'Перейти к ценности ' + (i + 1));
+    dot.addEventListener('click', function () {
+      goToIndex(i);
+    });
+    dotsContainer.appendChild(dot);
+    return dot;
+  });
+
+  var activeIndex = 0;
+  var ticking = false;
+
+  function centeredScrollLeft(i) {
+    var card = cards[i];
+    return card.offsetLeft - (viewport.clientWidth - card.offsetWidth) / 2;
   }
 
-  function setTransform(x, y) {
-    stats.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+  function updateActive() {
+    var viewportCenter = viewport.scrollLeft + viewport.clientWidth / 2;
+    var closestIndex = 0;
+    var closestDistance = Infinity;
+
+    cards.forEach(function (card, i) {
+      var cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      var distance = Math.abs(cardCenter - viewportCenter);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = i;
+      }
+    });
+
+    activeIndex = closestIndex;
+    cards.forEach(function (card, i) {
+      card.classList.toggle('is-active', i === activeIndex);
+    });
+    dots.forEach(function (dot, i) {
+      dot.classList.toggle('is-active', i === activeIndex);
+    });
   }
 
-  function pointerPos(e) {
-    if (e.touches && e.touches.length) {
-      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    }
-    return { x: e.clientX, y: e.clientY };
+  function goToIndex(i) {
+    i = Math.max(0, Math.min(cards.length - 1, i));
+    viewport.scrollTo({ left: centeredScrollLeft(i), behavior: 'smooth' });
   }
 
-  function onDragStart(e) {
-    dragging = true;
-    stats.classList.add('is-dragging');
-    var pos = pointerPos(e);
-    startX = pos.x;
-    startY = pos.y;
-    document.addEventListener('mousemove', onDragMove);
-    document.addEventListener('mouseup', onDragEnd);
-    document.addEventListener('touchmove', onDragMove, { passive: false });
-    document.addEventListener('touchend', onDragEnd);
+  // Land on the first card centered from the start, without relying on
+  // scroll-snap to have already settled there (and without scrollIntoView,
+  // which could also drag the outer page's vertical scroll along with it).
+  viewport.scrollLeft = centeredScrollLeft(0);
+
+  viewport.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () {
+      updateActive();
+      ticking = false;
+    });
+  }, { passive: true });
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', function () {
+      goToIndex(activeIndex - 1);
+    });
   }
 
-  function onDragMove(e) {
-    if (!dragging) return;
-    if (e.cancelable) e.preventDefault();
-    var pos = pointerPos(e);
-    originX = clamp(pos.x - startX, -LIMIT, LIMIT);
-    originY = clamp(pos.y - startY, -LIMIT, LIMIT);
-    setTransform(originX, originY);
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function () {
+      goToIndex(activeIndex + 1);
+    });
   }
 
-  function onDragEnd() {
-    dragging = false;
-    stats.classList.remove('is-dragging');
-    setTransform(0, 0);
-    document.removeEventListener('mousemove', onDragMove);
-    document.removeEventListener('mouseup', onDragEnd);
-    document.removeEventListener('touchmove', onDragMove);
-    document.removeEventListener('touchend', onDragEnd);
-  }
-
-  stats.addEventListener('mousedown', onDragStart);
-  stats.addEventListener('touchstart', onDragStart, { passive: true });
+  window.addEventListener('resize', updateActive);
+  updateActive();
 })();

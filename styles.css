@@ -316,6 +316,31 @@ button:focus-visible {
   grid-template-columns: repeat(3, 1fr);
 }
 
+/* Cursor-following glow, shared by service/case/testimonial/value cards.
+   Visibility toggles on mouseenter/mouseleave (see script.js); position
+   updates on mousemove but is seeded immediately on enter, so the glow
+   never waits for the first move to appear. */
+
+.glow-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  background: radial-gradient(circle 180px at var(--glow-x, 50%) var(--glow-y, 50%), rgba(201, 122, 62, 0.35), transparent 70%);
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.glow-card.is-hover::before {
+  opacity: 1;
+}
+
 /* Service cards */
 
 .card {
@@ -338,20 +363,6 @@ button:focus-visible {
   box-shadow: 0 28px 56px rgba(0, 0, 0, 0.45);
   transform: scale(1.02);
   border-color: rgba(201, 122, 62, 0.55);
-}
-
-.card__glow {
-  position: absolute;
-  z-index: 0;
-  top: -40%;
-  right: -25%;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: var(--color-accent);
-  opacity: 0.3;
-  filter: blur(55px);
-  pointer-events: none;
 }
 
 .card__icon {
@@ -405,12 +416,16 @@ button:focus-visible {
 }
 
 .case__image {
+  position: relative;
+  z-index: 1;
   aspect-ratio: 4 / 3;
   background: var(--color-placeholder);
   border: 1px solid var(--color-accent-faint-border);
 }
 
 .case__body {
+  position: relative;
+  z-index: 1;
   padding: 20px;
   border-top: 1px solid var(--color-border);
 }
@@ -517,16 +532,6 @@ button:focus-visible {
   border-radius: var(--radius);
   padding: 22px 30px;
   box-shadow: 0 22px 44px rgba(0, 0, 0, 0.4);
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  will-change: transform;
-}
-
-.stats.is-dragging {
-  cursor: grabbing;
-  transition: none;
 }
 
 .stat {
@@ -543,6 +548,133 @@ button:focus-visible {
 .stat__label {
   font-size: 0.82rem;
   color: var(--color-text-muted);
+}
+
+/* Values carousel */
+
+.values {
+  margin-top: 90px;
+}
+
+.values__title {
+  margin-bottom: 32px;
+}
+
+.values__viewport {
+  position: relative;
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 calc(50% - min(150px, 39vw));
+  padding: 10px calc(50% - min(150px, 39vw)) 30px;
+  scrollbar-width: none;
+}
+
+.values__viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.values__card {
+  flex: 0 0 auto;
+  width: min(300px, 78vw);
+  scroll-snap-align: center;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.16), var(--color-glass-bg) 60%);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+  padding: 30px 26px;
+  opacity: 0.55;
+  transform: scale(0.92);
+  transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease;
+}
+
+.values__card.is-active {
+  opacity: 1;
+  transform: scale(1.05);
+  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.45);
+  border-color: rgba(201, 122, 62, 0.4);
+}
+
+.values__card-title {
+  position: relative;
+  z-index: 1;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.values__card-text {
+  position: relative;
+  z-index: 1;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.values__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.values__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-accent-soft-border);
+  background: var(--color-accent-soft-bg);
+  color: var(--color-accent);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.values__arrow:hover {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.values__arrow:active {
+  transform: scale(0.94);
+}
+
+.values__dots {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.values__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: var(--color-glass-border);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.values__dot.is-active {
+  background: var(--color-accent);
+  transform: scale(1.25);
+}
+
+@media (max-width: 720px) {
+  .values {
+    margin-top: 64px;
+  }
+
+  .values__arrow {
+    display: none;
+  }
 }
 
 /* Testimonials */
@@ -568,11 +700,15 @@ button:focus-visible {
 }
 
 .testimonial__text {
+  position: relative;
+  z-index: 1;
   color: var(--color-text);
   margin-bottom: 20px;
 }
 
 .testimonial__author {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 12px;
