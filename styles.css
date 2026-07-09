@@ -15,7 +15,9 @@
   --font-serif: Georgia, "Iowan Old Style", "Palatino Linotype", "URW Palladio L", serif;
   --radius: 14px;
   --container-width: 1160px;
-  --header-height: 96px;
+  --header-height: 88px;
+  --color-glass-bg: rgba(244, 241, 232, 0.05);
+  --color-glass-border: rgba(244, 241, 232, 0.12);
   font-size: 16px;
 }
 
@@ -79,8 +81,8 @@ button:focus-visible {
 }
 
 .header__inner {
-  height: 64px;
-  padding: 0 12px 0 20px;
+  height: 52px;
+  padding: 0 10px 0 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -90,31 +92,31 @@ button:focus-visible {
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
 }
 
 .logo__mark {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   color: var(--color-accent);
   flex-shrink: 0;
 }
 
 .logo__word {
   font-family: var(--font-serif);
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   letter-spacing: 0.01em;
 }
 
 .nav {
   display: flex;
-  gap: 28px;
+  gap: 38px;
   flex: 1;
   justify-content: center;
 }
 
 .nav a {
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   color: var(--color-text-muted);
   transition: color 0.2s ease;
 }
@@ -168,8 +170,8 @@ button:focus-visible {
 }
 
 .cta--small {
-  padding: 9px 20px;
-  font-size: 0.85rem;
+  padding: 8px 18px;
+  font-size: 0.8rem;
   white-space: nowrap;
 }
 
@@ -180,31 +182,53 @@ button:focus-visible {
 /* Hero */
 
 .hero {
-  padding: 220px 0 120px;
-  background:
-    radial-gradient(circle at 50% -10%, rgba(201, 122, 62, 0.14) 0%, rgba(201, 122, 62, 0) 55%),
-    var(--color-bg);
-  text-align: center;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding: 140px 0 60px;
   border-bottom: 1px solid var(--color-border);
 }
 
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(201, 122, 62, 0.28) 0%, rgba(201, 122, 62, 0) 42%),
+    radial-gradient(circle at 82% 8%, rgba(27, 58, 40, 0.95) 0%, rgba(27, 58, 40, 0) 55%),
+    radial-gradient(circle at 78% 78%, rgba(201, 122, 62, 0.2) 0%, rgba(201, 122, 62, 0) 45%),
+    radial-gradient(circle at 25% 92%, rgba(21, 51, 31, 0.9) 0%, rgba(21, 51, 31, 0) 50%),
+    var(--color-bg);
+}
+
 .hero__inner {
-  max-width: 780px;
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+  margin-right: auto;
+  text-align: left;
 }
 
 .hero__title {
   font-family: var(--font-serif);
-  font-size: clamp(2.2rem, 5.5vw, 3.8rem);
+  font-size: clamp(3rem, 8vw, 7rem);
   font-weight: 400;
   letter-spacing: -0.01em;
-  line-height: 1.15;
-  margin-bottom: 24px;
+  line-height: 1.05;
+  margin-bottom: 28px;
+}
+
+.hero__title .accent {
+  color: var(--color-accent);
 }
 
 .hero__subtitle {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--color-text-muted);
-  margin-bottom: 40px;
+  max-width: 480px;
+  margin-bottom: 44px;
 }
 
 /* Sections */
@@ -221,15 +245,31 @@ button:focus-visible {
 
 .section__title {
   font-family: var(--font-serif);
-  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-size: clamp(2.6rem, 5.5vw, 4.2rem);
   font-weight: 400;
   letter-spacing: -0.01em;
+  line-height: 1.08;
   text-align: center;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
+}
+
+.section__title::before {
+  content: "";
+  display: inline-block;
+  width: 34px;
+  height: 3px;
+  margin-right: 16px;
+  margin-bottom: 6px;
+  background: var(--color-accent);
+  vertical-align: middle;
 }
 
 .section__title--left {
   text-align: left;
+}
+
+.section__title .accent {
+  color: var(--color-accent);
 }
 
 .section__subtitle {
@@ -256,17 +296,20 @@ button:focus-visible {
 /* Service cards */
 
 .card {
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--color-glass-border);
   border-radius: var(--radius);
   padding: 32px 24px;
-  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
 }
 
 .card:hover {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-  transform: translateY(-4px);
-  border-color: rgba(201, 122, 62, 0.45);
+  background: rgba(244, 241, 232, 0.09);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+  transform: translateY(-6px) scale(1.015);
+  border-color: rgba(201, 122, 62, 0.5);
 }
 
 .card__icon {
@@ -292,17 +335,20 @@ button:focus-visible {
 /* Case cards */
 
 .case {
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--color-glass-border);
   border-radius: var(--radius);
   overflow: hidden;
-  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
 }
 
 .case:hover {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-  transform: translateY(-4px);
-  border-color: rgba(201, 122, 62, 0.45);
+  background: rgba(244, 241, 232, 0.09);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+  transform: translateY(-6px) scale(1.015);
+  border-color: rgba(201, 122, 62, 0.5);
 }
 
 .case__image {
@@ -338,8 +384,8 @@ button:focus-visible {
 
 .about {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 56px;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 0;
   align-items: center;
 }
 
@@ -355,6 +401,18 @@ button:focus-visible {
   font-size: 0.85rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.about__body {
+  position: relative;
+  z-index: 1;
+  margin-left: -72px;
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.3);
+  padding: 44px;
 }
 
 .about__text {
@@ -608,10 +666,16 @@ button:focus-visible {
   .about,
   .contacts {
     grid-template-columns: 1fr;
+    gap: 32px;
   }
 
   .about__image {
     order: -1;
+  }
+
+  .about__body {
+    margin-left: 0;
+    padding: 32px;
   }
 }
 
@@ -654,7 +718,11 @@ button:focus-visible {
   }
 
   .hero {
-    padding: 160px 0 72px;
+    padding: 120px 0 48px;
+  }
+
+  .hero__title {
+    letter-spacing: -0.02em;
   }
 
   .section {
