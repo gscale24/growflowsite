@@ -159,6 +159,8 @@ button:focus-visible {
 /* Buttons */
 
 .cta {
+  position: relative;
+  z-index: 0;
   display: inline-block;
   background: var(--color-accent);
   color: var(--color-accent-text);
@@ -171,12 +173,37 @@ button:focus-visible {
   transition: background 0.2s ease, transform 0.15s ease;
 }
 
+.cta::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  z-index: -1;
+  border-radius: 999px;
+  background: conic-gradient(from 0deg, transparent 0deg, transparent 265deg, rgba(244, 241, 232, 0.95) 300deg, var(--color-accent) 330deg, transparent 355deg);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  animation: cta-border-spin 2.4s linear infinite;
+  animation-play-state: paused;
+  pointer-events: none;
+}
+
 .cta:hover {
   background: var(--color-accent-hover);
 }
 
+.cta:hover::after {
+  opacity: 1;
+  animation-play-state: running;
+}
+
 .cta:active {
   transform: scale(0.98);
+}
+
+@keyframes cta-border-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .cta--small {
@@ -293,6 +320,17 @@ button:focus-visible {
 
 .section__title .accent {
   color: var(--color-accent);
+}
+
+.section__num {
+  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: var(--color-accent);
+  opacity: 0.5;
+  vertical-align: middle;
+  margin-right: 14px;
 }
 
 .section__subtitle {
@@ -423,6 +461,24 @@ button:focus-visible {
   border: 1px solid var(--color-accent-faint-border);
 }
 
+/* Hover-to-play video, added by script.js when a .case carries data-video;
+   the gradient/blob placeholder above stays as the permanent fallback. */
+.case__video {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.case__image.is-video-active .case__video {
+  opacity: 1;
+}
+
 .case__body {
   position: relative;
   z-index: 1;
@@ -439,6 +495,69 @@ button:focus-visible {
 .case__text {
   color: var(--color-text-muted);
   font-size: 0.88rem;
+}
+
+/* Client marquee */
+
+.clients {
+  padding: 56px 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.clients__marquee {
+  position: relative;
+}
+
+.clients__caption {
+  text-align: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  margin-bottom: 24px;
+}
+
+.clients__track {
+  display: flex;
+  width: max-content;
+  gap: 64px;
+  animation: clients-marquee 24s linear infinite;
+}
+
+.clients__marquee:hover .clients__track {
+  animation-play-state: paused;
+}
+
+.clients__item {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  white-space: nowrap;
+  transition: opacity 0.25s ease, color 0.25s ease;
+}
+
+.clients__item:hover {
+  opacity: 1;
+  color: var(--color-text);
+}
+
+@keyframes clients-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clients__track {
+    animation: none;
+  }
 }
 
 /* About */
@@ -686,6 +805,36 @@ button:focus-visible {
   .values__arrow {
     display: none;
   }
+}
+
+/* Team */
+
+.team__card {
+  text-align: center;
+}
+
+.team__avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-placeholder);
+  border: 1px solid var(--color-border);
+  margin: 0 auto 18px;
+}
+
+.team__name {
+  position: relative;
+  z-index: 1;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.team__role {
+  position: relative;
+  z-index: 1;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
 }
 
 /* Testimonials */

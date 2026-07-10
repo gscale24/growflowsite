@@ -47,7 +47,7 @@
 
   <section class="section" id="services">
     <div class="container">
-      <h2 class="section__title">Услуги</h2>
+      <h2 class="section__title"><span class="section__num">01</span>Услуги</h2>
       <p class="section__subtitle">Полный спектр маркетинговых решений для вашего бизнеса</p>
       <div class="grid grid--4">
         <div class="card glow-card">
@@ -76,8 +76,11 @@
 
   <section class="section section--alt" id="portfolio">
     <div class="container">
-      <h2 class="section__title">Кейсы</h2>
+      <h2 class="section__title"><span class="section__num">02</span>Кейсы</h2>
       <p class="section__subtitle">Примеры проектов — контент будет добавлен позже</p>
+      <!-- TODO: добавить видео кейсов — если у .case задан data-video, при
+           hover оно проигрывается (autoplay, muted, loop) поверх плейсхолдера;
+           без data-video плейсхолдер остаётся статичным, как сейчас. -->
       <div class="grid grid--3">
         <div class="case glow-card">
           <div class="case__image placeholder-visual" aria-hidden="true">
@@ -116,6 +119,30 @@
     </div>
   </section>
 
+  <section class="clients" id="clients" aria-label="Клиенты">
+    <div class="clients__marquee">
+      <p class="clients__caption">Нам доверяют</p>
+      <div class="clients__track">
+        <span class="clients__item">Клиент 1</span>
+        <span class="clients__item">Клиент 2</span>
+        <span class="clients__item">Клиент 3</span>
+        <span class="clients__item">Клиент 4</span>
+        <span class="clients__item">Клиент 5</span>
+        <span class="clients__item">Клиент 6</span>
+        <span class="clients__item">Клиент 7</span>
+        <span class="clients__item">Клиент 8</span>
+        <span class="clients__item" aria-hidden="true">Клиент 1</span>
+        <span class="clients__item" aria-hidden="true">Клиент 2</span>
+        <span class="clients__item" aria-hidden="true">Клиент 3</span>
+        <span class="clients__item" aria-hidden="true">Клиент 4</span>
+        <span class="clients__item" aria-hidden="true">Клиент 5</span>
+        <span class="clients__item" aria-hidden="true">Клиент 6</span>
+        <span class="clients__item" aria-hidden="true">Клиент 7</span>
+        <span class="clients__item" aria-hidden="true">Клиент 8</span>
+      </div>
+    </div>
+  </section>
+
   <section class="section" id="about">
     <div class="container about">
       <div class="values" id="values">
@@ -147,20 +174,20 @@
         </div>
       </div>
       <div class="about__body">
-        <h2 class="section__title section__title--left">О <span class="accent">нас</span></h2>
+        <h2 class="section__title section__title--left"><span class="section__num">03</span>О <span class="accent">нас</span></h2>
         <p class="about__text">Мы — команда специалистов по маркетингу, объединённых общей целью: помогать бизнесу расти. Здесь будет рассказ об истории агентства, подходе к работе и ценностях команды.</p>
         <p class="about__text">Плейсхолдер-текст можно заменить на реальную историю компании, миссию и цифры, подтверждающие экспертизу.</p>
         <div class="stats">
           <div class="stat">
-            <span class="stat__number">50+</span>
+            <span class="stat__number"><span class="stat__number-value" data-count-to="50">0</span>+</span>
             <span class="stat__label">проектов</span>
           </div>
           <div class="stat">
-            <span class="stat__number">8</span>
+            <span class="stat__number"><span class="stat__number-value" data-count-to="8">0</span></span>
             <span class="stat__label">лет на рынке</span>
           </div>
           <div class="stat">
-            <span class="stat__number">30+</span>
+            <span class="stat__number"><span class="stat__number-value" data-count-to="30">0</span>+</span>
             <span class="stat__label">клиентов</span>
           </div>
         </div>
@@ -168,9 +195,38 @@
     </div>
   </section>
 
+  <section class="section" id="team">
+    <div class="container">
+      <h2 class="section__title"><span class="section__num">06</span>Команда</h2>
+      <p class="section__subtitle">Люди, которые работают над вашими проектами</p>
+      <div class="grid grid--4">
+        <div class="card glow-card team__card">
+          <div class="team__avatar" aria-hidden="true"></div>
+          <h3 class="team__name">Имя Фамилия</h3>
+          <p class="team__role">Должность</p>
+        </div>
+        <div class="card glow-card team__card">
+          <div class="team__avatar" aria-hidden="true"></div>
+          <h3 class="team__name">Имя Фамилия</h3>
+          <p class="team__role">Должность</p>
+        </div>
+        <div class="card glow-card team__card">
+          <div class="team__avatar" aria-hidden="true"></div>
+          <h3 class="team__name">Имя Фамилия</h3>
+          <p class="team__role">Должность</p>
+        </div>
+        <div class="card glow-card team__card">
+          <div class="team__avatar" aria-hidden="true"></div>
+          <h3 class="team__name">Имя Фамилия</h3>
+          <p class="team__role">Должность</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="section section--alt" id="testimonials">
     <div class="container">
-      <h2 class="section__title">Отзывы</h2>
+      <h2 class="section__title"><span class="section__num">04</span>Отзывы</h2>
       <p class="section__subtitle">Что говорят о нас клиенты</p>
       <div class="grid grid--3">
         <div class="testimonial glow-card">
@@ -210,7 +266,7 @@
   <section class="section" id="contacts">
     <div class="container contacts">
       <div class="contacts__info">
-        <h2 class="section__title section__title--left">Контакты</h2>
+        <h2 class="section__title section__title--left"><span class="section__num">05</span>Контакты</h2>
         <p class="contacts__text">Оставьте заявку, и мы свяжемся с вами в течение рабочего дня.</p>
         <ul class="contacts__list">
           <li><span>Телефон:</span> +7 (000) 000-00-00</li>

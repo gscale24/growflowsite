@@ -271,3 +271,75 @@
     observer.observe(el);
   });
 })();
+
+(function () {
+  // Count 0 -> target once a stat becomes visible; the "+" suffix stays in
+  // the markup outside this span, so only the digits themselves animate.
+  var counters = Array.prototype.slice.call(document.querySelectorAll('.stat__number-value[data-count-to]'));
+  if (!counters.length || !('IntersectionObserver' in window)) return;
+
+  var duration = 1800;
+
+  function animateCounter(el) {
+    var target = parseInt(el.getAttribute('data-count-to'), 10) || 0;
+    var start = performance.now();
+
+    function tick(now) {
+      var t = Math.min(1, (now - start) / duration);
+      var eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(target * eased);
+      if (t < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        el.textContent = target;
+      }
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  var observer = new IntersectionObserver(function (entries, obs) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      animateCounter(entry.target);
+      obs.unobserve(entry.target);
+    });
+  }, { threshold: 0.4 });
+
+  counters.forEach(function (el) {
+    observer.observe(el);
+  });
+})();
+
+(function () {
+  // TODO: добавить видео кейсов — задайте атрибут data-video="url.mp4" на
+  // .case, и при hover оно проиграется (autoplay, muted, loop) поверх
+  // плейсхолдера; без атрибута кейс остаётся на статичном плейсхолдере.
+  document.querySelectorAll('.case').forEach(function (caseEl) {
+    var videoUrl = caseEl.getAttribute('data-video');
+    if (!videoUrl) return;
+
+    var imageEl = caseEl.querySelector('.case__image');
+    if (!imageEl) return;
+
+    var video = document.createElement('video');
+    video.className = 'case__video';
+    video.src = videoUrl;
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.preload = 'none';
+    imageEl.appendChild(video);
+
+    caseEl.addEventListener('mouseenter', function () {
+      imageEl.classList.add('is-video-active');
+      video.currentTime = 0;
+      video.play().catch(function () {});
+    });
+
+    caseEl.addEventListener('mouseleave', function () {
+      imageEl.classList.remove('is-video-active');
+      video.pause();
+    });
+  });
+})();
