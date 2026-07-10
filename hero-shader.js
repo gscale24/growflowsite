@@ -33,6 +33,12 @@
   // (layer 1, ~0.2x scroll speed) without ever translating the element.
   var targetScrollPan = 0;
 
+  // Called every animation frame from the render loops below rather than
+  // from a 'scroll' event listener — browsers throttle/coalesce 'scroll'
+  // dispatch unevenly (especially during trackpad momentum scrolling), so
+  // reading window.scrollY directly on every frame guarantees the exact
+  // same scrollY always produces the exact same progress/pan, whichever
+  // direction the user scrolled from.
   function updateScrollState() {
     var doc = document.documentElement;
     var max = Math.max(1, doc.scrollHeight - window.innerHeight);
@@ -40,8 +46,6 @@
     targetScrollPan = window.scrollY * 0.00035;
   }
 
-  window.addEventListener('scroll', updateScrollState, { passive: true });
-  window.addEventListener('resize', updateScrollState, { passive: true });
   updateScrollState();
 
   var gl = null;
@@ -252,6 +256,7 @@
 
     function render(t) {
       if (visible) {
+        updateScrollState();
         currentProgress = lerp(currentProgress, targetProgress, 0.06);
         currentScrollPan = lerp(currentScrollPan, targetScrollPan, 0.06);
         mouseX = lerp(mouseX, targetMouseX, 0.12);
@@ -382,6 +387,7 @@
 
     function loop(t) {
       if (visible) {
+        updateScrollState();
         var progress = targetProgress;
         if (isMobile) {
           progress = (Math.sin(t * 0.00025) + 1) / 2;

@@ -334,15 +334,20 @@
 })();
 
 (function () {
-  // Unified, page-wide parallax: one rAF-throttled scroll listener computes
-  // every layer's offset together (not per-section observers), matching the
-  // "seamless page" architecture. Layer 1 — the background canvas — pans
-  // its own noise sampling internally in the shader (see hero-shader.js)
-  // rather than being translated here, since a fixed, viewport-sized
-  // element has nowhere to move to without revealing empty edges. Layers
-  // 2 and 4 below use each element's own distance from the viewport
-  // center, clamped, so the effect stays small and bounded regardless of
-  // how far down the page the element sits.
+  // Unified, page-wide parallax: one continuous requestAnimationFrame loop
+  // computes every layer's offset together (not per-section observers,
+  // and not gated behind the 'scroll' event), matching the "seamless page"
+  // architecture. Every frame re-reads the current, absolute window.scrollY
+  // and element positions — there is no lastScrollY/direction state and no
+  // dependency on how often the browser dispatches 'scroll' — so the exact
+  // same scrollY always produces the exact same transform whether the user
+  // got there by scrolling down or back up. Layer 1 — the background
+  // canvas — pans its own noise sampling internally in the shader (see
+  // hero-shader.js) rather than being translated here, since a fixed,
+  // viewport-sized element has nowhere to move to without revealing empty
+  // edges. Layers 2 and 4 below use each element's own distance from the
+  // viewport center, clamped, so the effect stays small and bounded
+  // regardless of how far down the page the element sits.
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   var isMobile = window.matchMedia('(max-width: 720px)').matches;
@@ -390,20 +395,12 @@
     });
   }
 
-  var ticking = false;
-
-  function onScroll() {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(function () {
-      update();
-      ticking = false;
-    });
+  function loop() {
+    update();
+    requestAnimationFrame(loop);
   }
 
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll, { passive: true });
-  update();
+  requestAnimationFrame(loop);
 })();
 
 (function () {
@@ -412,7 +409,10 @@
   // #services (pulled up by margin-top: -50vh) slides over it from below.
   // Fading the pinned hero out over that same 50vh keeps the handoff a
   // graceful recede instead of the incoming content visually colliding
-  // with hero text that's still at full opacity underneath it.
+  // with hero text that's still at full opacity underneath it. Runs as a
+  // continuous rAF loop reading absolute scrollY every frame (same
+  // reasoning as the parallax loop above) so the fade is identical
+  // whether scrolling down into it or back up out of it.
   var sticky = document.querySelector('.hero__sticky');
   if (!sticky) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -423,18 +423,10 @@
     sticky.style.opacity = String(1 - t);
   }
 
-  var ticking = false;
-
-  function onScroll() {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(function () {
-      update();
-      ticking = false;
-    });
+  function loop() {
+    update();
+    requestAnimationFrame(loop);
   }
 
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll, { passive: true });
-  update();
+  requestAnimationFrame(loop);
 })();
