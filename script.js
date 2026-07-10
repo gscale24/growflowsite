@@ -68,113 +68,206 @@
 
 (function () {
   // Reusable cursor-following glow for every glass card (services, cases,
-  // testimonials, values). Visibility is driven purely by mouseenter/
-  // mouseleave (never by mousemove), and the glow position is seeded the
-  // instant the pointer enters so it never waits for a first move to show up.
-  // mousemove only updates the position of an already-visible glow.
-  function setGlowPosition(el, e) {
+  // testimonials, values). mouseenter/mousemove/mouseleave handle the direct
+  // hover case; a rAF-throttled scroll listener re-checks the last known
+  // cursor position via elementFromPoint so a card scrolling in under a
+  // stationary cursor still lights up.
+  var lastX = null;
+  var lastY = null;
+  var activeCard = null;
+
+  function setGlowPosition(el, x, y) {
     var rect = el.getBoundingClientRect();
-    el.style.setProperty('--glow-x', (e.clientX - rect.left) + 'px');
-    el.style.setProperty('--glow-y', (e.clientY - rect.top) + 'px');
+    el.style.setProperty('--glow-x', (x - rect.left) + 'px');
+    el.style.setProperty('--glow-y', (y - rect.top) + 'px');
   }
 
   document.querySelectorAll('.glow-card').forEach(function (el) {
     el.addEventListener('mouseenter', function (e) {
-      setGlowPosition(el, e);
+      setGlowPosition(el, e.clientX, e.clientY);
       el.classList.add('is-hover');
+      activeCard = el;
     });
     el.addEventListener('mousemove', function (e) {
-      setGlowPosition(el, e);
+      setGlowPosition(el, e.clientX, e.clientY);
     });
     el.addEventListener('mouseleave', function () {
       el.classList.remove('is-hover');
+      if (activeCard === el) activeCard = null;
     });
   });
+
+  document.addEventListener('mousemove', function (e) {
+    lastX = e.clientX;
+    lastY = e.clientY;
+  }, { passive: true });
+
+  var scrollTicking = false;
+
+  function checkCardUnderCursor() {
+    if (lastX === null) return;
+    var el = document.elementFromPoint(lastX, lastY);
+    var card = el ? el.closest('.glow-card') : null;
+
+    if (card !== activeCard) {
+      if (activeCard) activeCard.classList.remove('is-hover');
+      if (card) {
+        setGlowPosition(card, lastX, lastY);
+        card.classList.add('is-hover');
+      }
+      activeCard = card;
+    } else if (card) {
+      setGlowPosition(card, lastX, lastY);
+    }
+  }
+
+  window.addEventListener('scroll', function () {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(function () {
+      checkCardUnderCursor();
+      scrollTicking = false;
+    });
+  }, { passive: true });
 })();
 
 (function () {
-  var viewport = document.getElementById('values-viewport');
+  var stage = document.getElementById('values-stage');
   var dotsContainer = document.getElementById('values-dots');
   var prevBtn = document.getElementById('values-prev');
   var nextBtn = document.getElementById('values-next');
-  if (!viewport || !dotsContainer) return;
+  if (!stage || !dotsContainer) return;
 
-  var cards = Array.prototype.slice.call(viewport.querySelectorAll('.values__card'));
-  if (!cards.length) return;
+  var cards = Array.prototype.slice.call(stage.querySelectorAll('.values__card'));
+  var count = cards.length;
+  if (!count) return;
 
   var dots = cards.map(function (_, i) {
     var dot = document.createElement('button');
     dot.className = 'values__dot';
     dot.setAttribute('aria-label', 'Перейти к ценности ' + (i + 1));
     dot.addEventListener('click', function () {
-      goToIndex(i);
+      goTo(i);
     });
     dotsContainer.appendChild(dot);
     return dot;
   });
 
   var activeIndex = 0;
-  var ticking = false;
 
-  function centeredScrollLeft(i) {
-    var card = cards[i];
-    return card.offsetLeft - (viewport.clientWidth - card.offsetWidth) / 2;
+  function mod(n) {
+    return ((n % count) + count) % count;
   }
 
-  function updateActive() {
-    var viewportCenter = viewport.scrollLeft + viewport.clientWidth / 2;
-    var closestIndex = 0;
-    var closestDistance = Infinity;
+  function render() {
+    var prevIndex = mod(activeIndex - 1);
+    var nextIndex = mod(activeIndex + 1);
 
     cards.forEach(function (card, i) {
-      var cardCenter = card.offsetLeft + card.offsetWidth / 2;
-      var distance = Math.abs(cardCenter - viewportCenter);
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestIndex = i;
+      card.classList.remove('is-active', 'is-prev', 'is-next');
+      if (i === activeIndex) {
+        card.classList.add('is-active');
+      } else if (i === prevIndex) {
+        card.classList.add('is-prev');
+      } else if (i === nextIndex) {
+        card.classList.add('is-next');
       }
     });
 
-    activeIndex = closestIndex;
-    cards.forEach(function (card, i) {
-      card.classList.toggle('is-active', i === activeIndex);
-    });
     dots.forEach(function (dot, i) {
       dot.classList.toggle('is-active', i === activeIndex);
     });
   }
 
-  function goToIndex(i) {
-    i = Math.max(0, Math.min(cards.length - 1, i));
-    viewport.scrollTo({ left: centeredScrollLeft(i), behavior: 'smooth' });
+  function goTo(i) {
+    activeIndex = mod(i);
+    render();
   }
 
-  // Land on the first card centered from the start, without relying on
-  // scroll-snap to have already settled there (and without scrollIntoView,
-  // which could also drag the outer page's vertical scroll along with it).
-  viewport.scrollLeft = centeredScrollLeft(0);
-
-  viewport.addEventListener('scroll', function () {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(function () {
-      updateActive();
-      ticking = false;
+  cards.forEach(function (card, i) {
+    card.addEventListener('click', function () {
+      if (i !== activeIndex) goTo(i);
     });
-  }, { passive: true });
+  });
 
   if (prevBtn) {
     prevBtn.addEventListener('click', function () {
-      goToIndex(activeIndex - 1);
+      goTo(activeIndex - 1);
     });
   }
 
   if (nextBtn) {
     nextBtn.addEventListener('click', function () {
-      goToIndex(activeIndex + 1);
+      goTo(activeIndex + 1);
     });
   }
 
-  window.addEventListener('resize', updateActive);
-  updateActive();
+  // Touch swipe support (mobile), independent of the arrow/dot navigation.
+  var touchStartX = null;
+
+  stage.addEventListener('touchstart', function (e) {
+    touchStartX = e.changedTouches[0].clientX;
+  }, { passive: true });
+
+  stage.addEventListener('touchend', function (e) {
+    if (touchStartX === null) return;
+    var deltaX = e.changedTouches[0].clientX - touchStartX;
+    touchStartX = null;
+    if (Math.abs(deltaX) < 40) return;
+    goTo(activeIndex + (deltaX < 0 ? 1 : -1));
+  }, { passive: true });
+
+  render();
+})();
+
+(function () {
+  // Scroll-triggered "immersive reveal": cards/key blocks fall in from
+  // above while fading in, once, the first time they enter the viewport.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
+
+  var revealEls = [];
+
+  // .card/.case/.testimonial already transition their own `transform` on
+  // hover, so the reveal animation goes on a wrapper instead of the card
+  // itself — two rules setting the same transition property on one element
+  // would have one silently override the other.
+  document.querySelectorAll('.card, .case, .testimonial').forEach(function (el) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'reveal';
+    el.parentNode.insertBefore(wrapper, el);
+    wrapper.appendChild(el);
+    revealEls.push(wrapper);
+  });
+
+  document.querySelectorAll('.values, #contacts .form, #contacts .contacts__info').forEach(function (el) {
+    el.classList.add('reveal');
+    revealEls.push(el);
+  });
+
+  // Stagger siblings that share the same parent container (grids of cards),
+  // each one firing ~90ms after the previous within that group.
+  var parentDelayCounters = new Map();
+  var delays = new Map();
+  revealEls.forEach(function (el) {
+    var parent = el.parentElement;
+    var count = parentDelayCounters.get(parent) || 0;
+    parentDelayCounters.set(parent, count + 1);
+    delays.set(el, count * 90);
+  });
+
+  var observer = new IntersectionObserver(function (entries, obs) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var el = entry.target;
+      setTimeout(function () {
+        el.classList.add('is-visible');
+      }, delays.get(el) || 0);
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.15 });
+
+  revealEls.forEach(function (el) {
+    observer.observe(el);
+  });
 })();

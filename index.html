@@ -118,11 +118,33 @@
 
   <section class="section" id="about">
     <div class="container about">
-      <div class="about__image placeholder-visual" aria-hidden="true">
-        <span class="blob blob--orange blob--a"></span>
-        <span class="blob blob--green blob--b"></span>
-        <span class="blob blob--orange blob--c"></span>
-        <span class="placeholder-label">Фото / видео</span>
+      <div class="values" id="values">
+        <span class="values__label">Наши <span class="accent">ценности</span></span>
+        <div class="values__stage-wrap">
+          <div class="values__stage" id="values-stage">
+            <div class="values__card glow-card" data-index="0">
+              <h4 class="values__card-title">Ценность №1</h4>
+              <p class="values__card-text">Короткое описание ценности-заглушки. Здесь будет реальный текст.</p>
+            </div>
+            <div class="values__card glow-card" data-index="1">
+              <h4 class="values__card-title">Ценность №2</h4>
+              <p class="values__card-text">Короткое описание ценности-заглушки. Здесь будет реальный текст.</p>
+            </div>
+            <div class="values__card glow-card" data-index="2">
+              <h4 class="values__card-title">Ценность №3</h4>
+              <p class="values__card-text">Короткое описание ценности-заглушки. Здесь будет реальный текст.</p>
+            </div>
+            <div class="values__card glow-card" data-index="3">
+              <h4 class="values__card-title">Ценность №4</h4>
+              <p class="values__card-text">Короткое описание ценности-заглушки. Здесь будет реальный текст.</p>
+            </div>
+          </div>
+        </div>
+        <div class="values__nav">
+          <button class="values__arrow values__arrow--prev" id="values-prev" aria-label="Предыдущая ценность">‹</button>
+          <div class="values__dots" id="values-dots"></div>
+          <button class="values__arrow values__arrow--next" id="values-next" aria-label="Следующая ценность">›</button>
+        </div>
       </div>
       <div class="about__body">
         <h2 class="section__title section__title--left">О <span class="accent">нас</span></h2>
@@ -141,34 +163,6 @@
             <span class="stat__number">30+</span>
             <span class="stat__label">клиентов</span>
           </div>
-        </div>
-      </div>
-    </div>
-    <div class="container">
-      <div class="values">
-        <h3 class="section__title section__title--left values__title">Наши <span class="accent">ценности</span></h3>
-        <div class="values__viewport" id="values-viewport">
-          <div class="values__card glow-card">
-            <h4 class="values__card-title">Ценность №1</h4>
-            <p class="values__card-text">Короткое описание ценности-заглушки. Здесь будет реальный текст.</p>
-          </div>
-          <div class="values__card glow-card">
-            <h4 class="values__card-title">Ценность №2</h4>
-            <p class="values__card-text">Короткое описание ценности-заглушки. Здесь будет реальный текст.</p>
-          </div>
-          <div class="values__card glow-card">
-            <h4 class="values__card-title">Ценность №3</h4>
-            <p class="values__card-text">Короткое описание ценности-заглушки. Здесь будет реальный текст.</p>
-          </div>
-          <div class="values__card glow-card">
-            <h4 class="values__card-title">Ценность №4</h4>
-            <p class="values__card-text">Короткое описание ценности-заглушки. Здесь будет реальный текст.</p>
-          </div>
-        </div>
-        <div class="values__nav">
-          <button class="values__arrow values__arrow--prev" id="values-prev" aria-label="Предыдущая ценность">‹</button>
-          <div class="values__dots" id="values-dots"></div>
-          <button class="values__arrow values__arrow--next" id="values-next" aria-label="Следующая ценность">›</button>
         </div>
       </div>
     </div>
