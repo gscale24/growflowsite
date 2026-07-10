@@ -334,25 +334,35 @@
 })();
 
 (function () {
-  // Layered scroll parallax: section titles lag behind normal scroll speed
-  // while their leading dash + number run ahead of it, and the hero's blur
-  // shapes drift independently of the WebGL background. Disabled on mobile
-  // and when the user prefers reduced motion, per the brief.
+  // Unified, page-wide parallax: one rAF-throttled scroll listener computes
+  // every layer's offset together (not per-section observers), matching the
+  // "seamless page" architecture. Layer 1 — the background canvas — pans
+  // its own noise sampling internally in the shader (see hero-shader.js)
+  // rather than being translated here, since a fixed, viewport-sized
+  // element has nowhere to move to without revealing empty edges. Layers
+  // 2 and 4 below use each element's own distance from the viewport
+  // center, clamped, so the effect stays small and bounded regardless of
+  // how far down the page the element sits.
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  if (window.matchMedia('(max-width: 720px)').matches) return;
 
-  var titles = Array.prototype.slice.call(document.querySelectorAll('.section__title'));
+  var isMobile = window.matchMedia('(max-width: 720px)').matches;
+  var lowPower = !!(navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  if (isMobile || lowPower) return;
+
+  // Layer 2: decorative titles/dashes/numbers — slower than scroll (~0.55x).
+  var layer2 = Array.prototype.slice.call(document.querySelectorAll('.section__title'));
+  // Layer 4: small foreground accents — faster than scroll (~1.25x).
+  var layer4 = Array.prototype.slice.call(document.querySelectorAll('.stat__number, .testimonial__quote-mark'));
+  // Hero-only accent blobs: tied to raw scroll position (see below) because
+  // they sit inside the sticky hero, whose own viewport position freezes
+  // while pinned — a viewport-center-relative offset would go still there.
   var heroBlobs = Array.prototype.slice.call(document.querySelectorAll('.hero__blob'));
-  if (!titles.length && !heroBlobs.length) return;
+  if (!layer2.length && !layer4.length && !heroBlobs.length) return;
 
-  // Kept deliberately small: the section titles sit only ~18px above their
-  // subtitle, so the title's own shift must stay well under that margin or
-  // it visually collides with the text below it. The dash + number ride
-  // inside the title's own (tall) line box, so they can move a bit further.
-  var SLOW_COEF = 0.05;
-  var FAST_COEF = -0.08;
-  var SLOW_MAX = 10;
-  var FAST_MAX = 20;
+  var LAYER2_COEF = 0.045;
+  var LAYER2_MAX = 14;
+  var LAYER4_COEF = 0.09;
+  var LAYER4_MAX = 26;
   var BLOB_COEF = 0.18;
   var MAX_BLOB_SHIFT = 90;
 
@@ -360,22 +370,57 @@
     return Math.max(min, Math.min(max, v));
   }
 
-  function update() {
+  function applyLayer(els, coef, max) {
     var vh = window.innerHeight;
-
-    titles.forEach(function (title) {
-      var rect = title.getBoundingClientRect();
+    els.forEach(function (el) {
+      var rect = el.getBoundingClientRect();
       var distance = vh / 2 - (rect.top + rect.height / 2);
-      var slow = clamp(distance * SLOW_COEF, -SLOW_MAX, SLOW_MAX);
-      var fastTotal = clamp(distance * FAST_COEF, -FAST_MAX, FAST_MAX);
-      title.style.transform = 'translateY(' + slow + 'px)';
-      title.style.setProperty('--parallax-fast', (fastTotal - slow) + 'px');
+      var offset = clamp(distance * coef, -max, max);
+      el.style.transform = 'translateY(' + offset + 'px)';
     });
+  }
+
+  function update() {
+    applyLayer(layer2, LAYER2_COEF, LAYER2_MAX);
+    applyLayer(layer4, LAYER4_COEF, LAYER4_MAX);
 
     var blobShift = clamp(window.scrollY * BLOB_COEF, 0, MAX_BLOB_SHIFT);
     heroBlobs.forEach(function (blob) {
       blob.style.transform = 'translateY(' + blobShift + 'px)';
     });
+  }
+
+  var ticking = false;
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () {
+      update();
+      ticking = false;
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+})();
+
+(function () {
+  // Hero → Services sticky handoff: .hero is 150vh tall with a 100vh
+  // sticky inner, so it stays pinned for 50vh of extra scroll while
+  // #services (pulled up by margin-top: -50vh) slides over it from below.
+  // Fading the pinned hero out over that same 50vh keeps the handoff a
+  // graceful recede instead of the incoming content visually colliding
+  // with hero text that's still at full opacity underneath it.
+  var sticky = document.querySelector('.hero__sticky');
+  if (!sticky) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  function update() {
+    var fadeDistance = window.innerHeight * 0.5;
+    var t = Math.max(0, Math.min(1, window.scrollY / fadeDistance));
+    sticky.style.opacity = String(1 - t);
   }
 
   var ticking = false;

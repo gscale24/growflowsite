@@ -1,38 +1,48 @@
-// Hero background: WebGL fractal-noise "liquid" shader with a canvas2D
-// fallback for browsers/devices without WebGL. See fix commits for the
-// canvas2D blob implementation this replaced.
+// Page background: WebGL fractal-noise "liquid" shader with a canvas2D
+// fallback for browsers/devices without WebGL. Runs as one continuous,
+// fixed full-viewport layer behind the entire page (not just the hero),
+// so scrolling never "restarts" the background — see fix commits for the
+// canvas2D blob implementation this replaced, and for the hero-only
+// version this itself replaced.
 (function () {
-  var hero = document.getElementById('hero');
   var canvas = document.getElementById('hero-canvas');
-  if (!hero || !canvas) return;
+  if (!canvas) return;
 
   var isMobile = window.matchMedia('(max-width: 720px)').matches;
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lowPower = !!(navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  var cheap = isMobile || lowPower;
 
   function lerp(a, b, t) {
     return a + (b - a) * t;
   }
 
-  var visible = true;
-  if ('IntersectionObserver' in window) {
-    var observer = new IntersectionObserver(function (entries) {
-      visible = entries[0].isIntersecting;
-    });
-    observer.observe(hero);
-  }
+  // Paused only when the tab itself isn't visible — the canvas is now a
+  // permanent page background, not something that scrolls in/out of view.
+  var visible = !document.hidden;
+  document.addEventListener('visibilitychange', function () {
+    visible = !document.hidden;
+  });
 
-  // Scroll progress across the hero's own height (0 at top, 1 once scrolled past it).
-  // Shared by both the WebGL and fallback paths.
+  // Progress across the WHOLE page's scroll range (0 at top, 1 at the very
+  // bottom), shared by both the WebGL and fallback paths and used to drift
+  // the background's tone slightly darker toward the footer.
   var targetProgress = 0;
+  // A small pan offset derived from raw scroll position — this is what
+  // gives the fixed background layer its own slow "parallax" drift
+  // (layer 1, ~0.2x scroll speed) without ever translating the element.
+  var targetScrollPan = 0;
 
-  function updateTargetProgress() {
-    var rect = hero.getBoundingClientRect();
-    var height = hero.offsetHeight || 1;
-    targetProgress = Math.max(0, Math.min(1, -rect.top / height));
+  function updateScrollState() {
+    var doc = document.documentElement;
+    var max = Math.max(1, doc.scrollHeight - window.innerHeight);
+    targetProgress = Math.max(0, Math.min(1, window.scrollY / max));
+    targetScrollPan = window.scrollY * 0.00035;
   }
 
-  window.addEventListener('scroll', updateTargetProgress, { passive: true });
-  updateTargetProgress();
+  window.addEventListener('scroll', updateScrollState, { passive: true });
+  window.addEventListener('resize', updateScrollState, { passive: true });
+  updateScrollState();
 
   var gl = null;
   try {
@@ -65,12 +75,13 @@
     // small fractal Brownian motion wrapper with a uniform octave count so
     // it can be cheapened on lower-powered devices.
     var FRAG_SRC = [
-      isMobile ? 'precision mediump float;' : 'precision highp float;',
+      cheap ? 'precision mediump float;' : 'precision highp float;',
       'uniform vec2 uResolution;',
       'uniform float uTime;',
       'uniform vec2 uMouse;',
       'uniform float uMouseActive;',
       'uniform float uProgress;',
+      'uniform float uScrollPan;',
       'uniform int uOctaves;',
       'varying vec2 vUv;',
       '',
@@ -120,7 +131,7 @@
       '  float aspect = uResolution.x / uResolution.y;',
       '  vec2 p = (uv - 0.5) * vec2(aspect, 1.0) * 3.2 + 0.5;',
       '',
-      '  vec2 flow = vec2(uTime * 0.025, uTime * 0.018) * (1.0 + uProgress * 0.4);',
+      '  vec2 flow = vec2(uTime * 0.025, uTime * 0.018 + uScrollPan) * (1.0 + uProgress * 0.4);',
       '',
       '  vec2 uvAspect = (uv - uMouse) * vec2(aspect, 1.0);',
       '  float distToMouse = length(uvAspect);',
@@ -137,6 +148,7 @@
       '  vec3 colorBase = vec3(0.0588, 0.1686, 0.1176);',
       '  vec3 colorMid  = vec3(0.1137, 0.2275, 0.1647);',
       '  vec3 colorHi   = vec3(0.7882, 0.4784, 0.2431);',
+      '  vec3 colorDeep = vec3(0.0314, 0.0863, 0.0588);',
       '',
       '  vec3 color = mix(colorBase, colorMid, smoothstep(0.25, 0.65, n));',
       '',
@@ -144,7 +156,8 @@
       '  hiMask = clamp(hiMask + mouseFalloff * 0.12, 0.0, 1.0);',
       '  color = mix(color, colorHi, hiMask);',
       '',
-      '  color = mix(color, colorMid, uProgress * 0.06);',
+      '  color = mix(color, colorMid, smoothstep(0.0, 0.5, uProgress) * 0.12);',
+      '  color = mix(color, colorDeep, smoothstep(0.5, 1.0, uProgress) * 0.4);',
       '',
       '  gl_FragColor = vec4(color, 1.0);',
       '}'
@@ -186,15 +199,15 @@
     var uMouse = gl.getUniformLocation(program, 'uMouse');
     var uMouseActive = gl.getUniformLocation(program, 'uMouseActive');
     var uProgress = gl.getUniformLocation(program, 'uProgress');
+    var uScrollPan = gl.getUniformLocation(program, 'uScrollPan');
     var uOctaves = gl.getUniformLocation(program, 'uOctaves');
 
-    var dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 2);
-    var octaves = isMobile ? 2 : 4;
+    var dpr = Math.min(window.devicePixelRatio || 1, cheap ? 1.25 : 2);
+    var octaves = cheap ? 2 : 4;
 
     function resize() {
-      var rect = canvas.getBoundingClientRect();
-      var w = Math.max(1, Math.round(rect.width * dpr));
-      var h = Math.max(1, Math.round(rect.height * dpr));
+      var w = Math.max(1, Math.round(window.innerWidth * dpr));
+      var h = Math.max(1, Math.round(window.innerHeight * dpr));
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w;
         canvas.height = h;
@@ -206,6 +219,7 @@
     window.addEventListener('resize', resize);
 
     var currentProgress = 0;
+    var currentScrollPan = 0;
     var targetMouseX = 0.5;
     var targetMouseY = 0.5;
     var mouseX = 0.5;
@@ -214,24 +228,24 @@
     var mouseActive = 0;
 
     if (!isMobile) {
-      hero.addEventListener('mousemove', function (e) {
-        var rect = hero.getBoundingClientRect();
-        targetMouseX = (e.clientX - rect.left) / rect.width;
-        targetMouseY = 1 - (e.clientY - rect.top) / rect.height;
+      window.addEventListener('mousemove', function (e) {
+        targetMouseX = e.clientX / window.innerWidth;
+        targetMouseY = 1 - e.clientY / window.innerHeight;
         targetMouseActive = 1;
       });
 
-      hero.addEventListener('mouseleave', function () {
+      document.addEventListener('mouseleave', function () {
         targetMouseActive = 0;
       });
     }
 
-    function draw(time, progress, mx, my, active) {
+    function draw(time, progress, pan, mx, my, active) {
       gl.uniform2f(uResolution, canvas.width, canvas.height);
       gl.uniform1f(uTime, time);
       gl.uniform2f(uMouse, mx, my);
       gl.uniform1f(uMouseActive, active);
       gl.uniform1f(uProgress, progress);
+      gl.uniform1f(uScrollPan, pan);
       gl.uniform1i(uOctaves, octaves);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
@@ -239,16 +253,17 @@
     function render(t) {
       if (visible) {
         currentProgress = lerp(currentProgress, targetProgress, 0.06);
+        currentScrollPan = lerp(currentScrollPan, targetScrollPan, 0.06);
         mouseX = lerp(mouseX, targetMouseX, 0.12);
         mouseY = lerp(mouseY, targetMouseY, 0.12);
         mouseActive = lerp(mouseActive, targetMouseActive, 0.1);
-        draw(t * 0.001, currentProgress, mouseX, mouseY, mouseActive);
+        draw(t * 0.001, currentProgress, currentScrollPan, mouseX, mouseY, mouseActive);
       }
       requestAnimationFrame(render);
     }
 
     if (reduceMotion) {
-      draw(0, 0, 0.5, 0.5, 0);
+      draw(0, 0, 0, 0.5, 0.5, 0);
     } else {
       requestAnimationFrame(render);
     }
@@ -267,9 +282,8 @@
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     function resize() {
-      var rect = canvas.getBoundingClientRect();
-      canvas.width = Math.max(1, Math.round(rect.width * dpr));
-      canvas.height = Math.max(1, Math.round(rect.height * dpr));
+      canvas.width = Math.max(1, Math.round(window.innerWidth * dpr));
+      canvas.height = Math.max(1, Math.round(window.innerHeight * dpr));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
@@ -277,6 +291,7 @@
     window.addEventListener('resize', resize);
 
     var currentProgress = 0;
+    var currentScrollPan = 0;
     var targetMouseX = 0.5;
     var targetMouseY = 0.5;
     var mouseX = 0.5;
@@ -287,14 +302,13 @@
     var spotOpacity = 0;
 
     if (!isMobile) {
-      hero.addEventListener('mousemove', function (e) {
-        var rect = hero.getBoundingClientRect();
-        targetMouseX = (e.clientX - rect.left) / rect.width;
-        targetMouseY = (e.clientY - rect.top) / rect.height;
+      window.addEventListener('mousemove', function (e) {
+        targetMouseX = e.clientX / window.innerWidth;
+        targetMouseY = e.clientY / window.innerHeight;
         targetSpotOpacity = 1;
       });
 
-      hero.addEventListener('mouseleave', function () {
+      document.addEventListener('mouseleave', function () {
         targetMouseX = 0.5;
         targetMouseY = 0.5;
         targetSpotOpacity = 0;
@@ -303,14 +317,14 @@
 
     var PARALLAX = isMobile ? [0, 0, 0] : [0.05, 0.03, 0.02];
 
-    function draw(progress, mx, my, sx, sy, spotAlpha, t) {
+    function draw(progress, pan, mx, my, sx, sy, spotAlpha, t) {
       var w = canvas.clientWidth;
       var h = canvas.clientHeight;
       ctx.clearRect(0, 0, w, h);
 
       var safeX = w * 0.5;
       var cx = w * 0.58;
-      var cy = h / 2;
+      var cy = h / 2 + pan * h;
       var offsetX = (mx - 0.5) * w;
       var offsetY = (my - 0.5) * h;
 
@@ -356,6 +370,14 @@
         ctx.fill();
         ctx.filter = 'none';
       }
+
+      // Same darkening-toward-the-footer drift as the WebGL path's colorDeep
+      // mix, done here as a flat overlay since canvas2D has no shader mix.
+      var deepAlpha = Math.max(0, progress - 0.5) * 0.8;
+      if (deepAlpha > 0.01) {
+        ctx.fillStyle = 'rgba(4, 12, 8, ' + deepAlpha.toFixed(3) + ')';
+        ctx.fillRect(0, 0, w, h);
+      }
     }
 
     function loop(t) {
@@ -365,18 +387,19 @@
           progress = (Math.sin(t * 0.00025) + 1) / 2;
         }
         currentProgress = lerp(currentProgress, progress, 0.08);
+        currentScrollPan = lerp(currentScrollPan, targetScrollPan, 0.08);
         mouseX = lerp(mouseX, targetMouseX, 0.08);
         mouseY = lerp(mouseY, targetMouseY, 0.08);
         spotX = lerp(spotX, targetMouseX, 0.18);
         spotY = lerp(spotY, targetMouseY, 0.18);
         spotOpacity = lerp(spotOpacity, targetSpotOpacity, 0.15);
-        draw(currentProgress, mouseX, mouseY, spotX, spotY, spotOpacity, t);
+        draw(currentProgress, currentScrollPan, mouseX, mouseY, spotX, spotY, spotOpacity, t);
       }
       requestAnimationFrame(loop);
     }
 
     if (reduceMotion) {
-      draw(0.5, 0.5, 0.5, 0.5, 0.5, 0, 0);
+      draw(0.5, 0, 0.5, 0.5, 0.5, 0.5, 0, 0);
     } else {
       requestAnimationFrame(loop);
     }

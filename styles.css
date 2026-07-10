@@ -217,25 +217,40 @@ button:focus-visible {
   width: 100%;
 }
 
+/* Page background — one continuous WebGL/canvas2D layer behind the entire
+   page (see hero-shader.js), fixed to the viewport so no section ever
+   "restarts" its own background. This is parallax layer 1 (~0.2x scroll
+   speed): the shader pans its own noise sampling by scroll internally
+   instead of the element being translated, since a fixed, viewport-sized
+   element has nowhere to translate to without revealing empty edges. */
+#hero-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
 /* Hero */
 
 .hero {
   position: relative;
-  min-height: 100vh;
+  height: 150vh;
+}
+
+/* The hero's content stays pinned at the top of the viewport for an extra
+   50vh of scroll (the difference between .hero's 150vh and this 100vh),
+   during which #services (pulled up by margin-top: -50vh) slides up from
+   below and visually overlaps it — a continuous handoff instead of a hard
+   section boundary. */
+.hero__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
   display: flex;
   align-items: center;
   overflow: hidden;
-  padding: 140px 0 60px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.hero__canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
 }
 
 /* Extra parallax layer independent of the scroll-driven WebGL background;
@@ -310,16 +325,17 @@ button:focus-visible {
   text-shadow: 0 2px 20px rgba(8, 22, 15, 0.8);
 }
 
-/* Sections */
+/* Sections — no per-section background or divider borders; every section
+   sits directly on the one continuous #hero-canvas layer behind the page. */
 
 .section {
+  position: relative;
   padding: 110px 0;
 }
 
-.section--alt {
-  background: var(--color-bg-alt);
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
+#services {
+  z-index: 1;
+  margin-top: -50vh;
 }
 
 .section__title {
@@ -330,6 +346,7 @@ button:focus-visible {
   line-height: 1.05;
   text-align: center;
   margin-bottom: 18px;
+  text-shadow: 0 4px 28px rgba(8, 22, 15, 0.75);
   will-change: transform;
 }
 
@@ -342,7 +359,6 @@ button:focus-visible {
   margin-bottom: 6px;
   background: var(--color-accent);
   vertical-align: middle;
-  transform: translateY(var(--parallax-fast, 0px));
 }
 
 .section__title--left {
@@ -363,7 +379,6 @@ button:focus-visible {
   vertical-align: middle;
   margin-right: 14px;
   display: inline-block;
-  transform: translateY(var(--parallax-fast, 0px));
 }
 
 .section__subtitle {
@@ -372,6 +387,7 @@ button:focus-visible {
   font-size: 1.05rem;
   max-width: 520px;
   margin: 0 auto 56px;
+  text-shadow: 0 2px 16px rgba(8, 22, 15, 0.7);
 }
 
 /* Cursor-following glow, shared by service/case/testimonial/value cards.
@@ -658,9 +674,8 @@ button:focus-visible {
 /* Client marquee */
 
 .clients {
+  position: relative;
   padding: 56px 0;
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
   overflow: hidden;
 }
 
@@ -676,6 +691,7 @@ button:focus-visible {
   color: var(--color-text-muted);
   opacity: 0.6;
   margin-bottom: 24px;
+  text-shadow: 0 2px 14px rgba(8, 22, 15, 0.7);
 }
 
 .clients__track {
@@ -831,6 +847,7 @@ button:focus-visible {
 .values__label {
   font-family: var(--font-serif);
   font-size: 1.3rem;
+  text-shadow: 0 2px 16px rgba(8, 22, 15, 0.7);
 }
 
 .values__stage-wrap {
@@ -1267,6 +1284,7 @@ button:focus-visible {
 .contacts__text {
   color: var(--color-text-muted);
   margin-bottom: 24px;
+  text-shadow: 0 2px 16px rgba(8, 22, 15, 0.7);
 }
 
 .contacts__list {
@@ -1275,6 +1293,7 @@ button:focus-visible {
   flex-direction: column;
   gap: 10px;
   color: var(--color-text-muted);
+  text-shadow: 0 2px 16px rgba(8, 22, 15, 0.7);
 }
 
 .contacts__list span {
@@ -1339,7 +1358,7 @@ button:focus-visible {
 /* Footer */
 
 .footer {
-  border-top: 1px solid var(--color-border);
+  position: relative;
   padding: 40px 0;
 }
 
