@@ -237,6 +237,34 @@ button:focus-visible {
   height: 100%;
 }
 
+/* Extra parallax layer independent of the scroll-driven WebGL background;
+   these drift on scroll via script.js while the hero is in view. */
+.hero__blob {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.32;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hero__blob--a {
+  width: 42vw;
+  aspect-ratio: 1;
+  top: -12%;
+  right: -8%;
+  background: var(--color-accent);
+}
+
+.hero__blob--b {
+  width: 34vw;
+  aspect-ratio: 1;
+  bottom: -18%;
+  left: -6%;
+  background: #2f6349;
+}
+
 .blob {
   position: absolute;
   border-radius: 50%;
@@ -254,14 +282,14 @@ button:focus-visible {
 .hero__inner {
   position: relative;
   z-index: 1;
-  max-width: 700px;
+  max-width: 1040px;
   margin-right: auto;
   text-align: left;
 }
 
 .hero__title {
   font-family: var(--font-serif);
-  font-size: clamp(3rem, 8vw, 7rem);
+  font-size: clamp(3.4rem, 8.5vw, 7.5rem);
   font-weight: 400;
   letter-spacing: -0.01em;
   line-height: 1.05;
@@ -295,12 +323,13 @@ button:focus-visible {
 
 .section__title {
   font-family: var(--font-serif);
-  font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+  font-size: clamp(4rem, 8.5vw, 6.5rem);
   font-weight: 400;
   letter-spacing: -0.01em;
-  line-height: 1.08;
+  line-height: 1.05;
   text-align: center;
   margin-bottom: 18px;
+  will-change: transform;
 }
 
 .section__title::before {
@@ -312,6 +341,7 @@ button:focus-visible {
   margin-bottom: 6px;
   background: var(--color-accent);
   vertical-align: middle;
+  transform: translateY(var(--parallax-fast, 0px));
 }
 
 .section__title--left {
@@ -331,6 +361,8 @@ button:focus-visible {
   opacity: 0.5;
   vertical-align: middle;
   margin-right: 14px;
+  display: inline-block;
+  transform: translateY(var(--parallax-fast, 0px));
 }
 
 .section__subtitle {
@@ -1170,8 +1202,21 @@ button:focus-visible {
     padding: 72px 0;
   }
 
+  .section__title {
+    font-size: clamp(2.8rem, 11vw, 4.5rem);
+  }
+
+  .section__num {
+    font-size: 0.7rem;
+    margin-right: 8px;
+  }
+
   .stats {
     flex-wrap: wrap;
     gap: 24px;
+  }
+
+  .hero__blob {
+    display: none;
   }
 }

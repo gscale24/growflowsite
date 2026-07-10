@@ -343,3 +343,64 @@
     });
   });
 })();
+
+(function () {
+  // Layered scroll parallax: section titles lag behind normal scroll speed
+  // while their leading dash + number run ahead of it, and the hero's blur
+  // shapes drift independently of the WebGL background. Disabled on mobile
+  // and when the user prefers reduced motion, per the brief.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(max-width: 720px)').matches) return;
+
+  var titles = Array.prototype.slice.call(document.querySelectorAll('.section__title'));
+  var heroBlobs = Array.prototype.slice.call(document.querySelectorAll('.hero__blob'));
+  if (!titles.length && !heroBlobs.length) return;
+
+  // Kept deliberately small: the section titles sit only ~18px above their
+  // subtitle, so the title's own shift must stay well under that margin or
+  // it visually collides with the text below it. The dash + number ride
+  // inside the title's own (tall) line box, so they can move a bit further.
+  var SLOW_COEF = 0.05;
+  var FAST_COEF = -0.08;
+  var SLOW_MAX = 10;
+  var FAST_MAX = 20;
+  var BLOB_COEF = 0.18;
+  var MAX_BLOB_SHIFT = 90;
+
+  function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
+  function update() {
+    var vh = window.innerHeight;
+
+    titles.forEach(function (title) {
+      var rect = title.getBoundingClientRect();
+      var distance = vh / 2 - (rect.top + rect.height / 2);
+      var slow = clamp(distance * SLOW_COEF, -SLOW_MAX, SLOW_MAX);
+      var fastTotal = clamp(distance * FAST_COEF, -FAST_MAX, FAST_MAX);
+      title.style.transform = 'translateY(' + slow + 'px)';
+      title.style.setProperty('--parallax-fast', (fastTotal - slow) + 'px');
+    });
+
+    var blobShift = clamp(window.scrollY * BLOB_COEF, 0, MAX_BLOB_SHIFT);
+    heroBlobs.forEach(function (blob) {
+      blob.style.transform = 'translateY(' + blobShift + 'px)';
+    });
+  }
+
+  var ticking = false;
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () {
+      update();
+      ticking = false;
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+})();
