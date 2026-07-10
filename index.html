@@ -8,6 +8,37 @@
 </head>
 <body>
 
+<!-- Signature intro: the logo draws in, fills terracotta, then the whole
+     overlay slides up to reveal the (already-rendered) hero underneath.
+     Shows once per browser session — see the inline script right after it
+     for the synchronous "should this show at all" decision (kept inline
+     so it runs before first paint, avoiding any flash for repeat views
+     within the same session), and intro.js for the actual animation. -->
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro__content">
+    <svg class="intro__logo" id="intro-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path class="intro__logo-path" d="M75 33 A30 30 0 1 0 75 67" stroke-width="8" stroke-linecap="round"/>
+      <path class="intro__logo-path" d="M58 80 V18 M46 34 L58 18 L70 34" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="intro__logo-path" d="M58 50 H84" stroke-width="8" stroke-linecap="round"/>
+    </svg>
+    <div class="intro__counter"><span id="intro-counter-value">00</span>%</div>
+  </div>
+</div>
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var shown = false;
+  try { shown = !!sessionStorage.getItem('introShown'); } catch (e) {}
+  if (reduce || shown) {
+    var el = document.getElementById('intro');
+    if (el) el.style.display = 'none';
+  } else {
+    window.__showIntro = true;
+    try { sessionStorage.setItem('introShown', '1'); } catch (e) {}
+  }
+})();
+</script>
+
 <!-- Single continuous background for the whole page (see hero-shader.js);
      fixed + behind everything so no section ever "restarts" its own bg. -->
 <canvas id="hero-canvas" aria-hidden="true"></canvas>
@@ -356,6 +387,7 @@
   </div>
 </div>
 
+<script src="intro.js"></script>
 <script src="script.js"></script>
 <script src="hero-shader.js"></script>
 </body>
