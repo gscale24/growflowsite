@@ -226,24 +226,13 @@
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if (!('IntersectionObserver' in window)) return;
 
-  var revealEls = [];
-
-  // .card/.case/.testimonial already transition their own `transform` on
-  // hover, so the reveal animation goes on a wrapper instead of the card
-  // itself — two rules setting the same transition property on one element
-  // would have one silently override the other.
-  document.querySelectorAll('.card, .case, .testimonial').forEach(function (el) {
-    var wrapper = document.createElement('div');
-    wrapper.className = 'reveal';
-    el.parentNode.insertBefore(wrapper, el);
-    wrapper.appendChild(el);
-    revealEls.push(wrapper);
-  });
-
-  document.querySelectorAll('.values, #contacts .form, #contacts .contacts__info').forEach(function (el) {
-    el.classList.add('reveal');
-    revealEls.push(el);
-  });
+  // .card/.case/.testimonial carry their reveal fall+fade baked directly
+  // into their own base rule (see styles.css) instead of a wrapper div, so
+  // grid-column spans (bento cases) and negative-margin overlaps (team
+  // diagonal) still resolve against the real element, not a wrapper.
+  var revealEls = Array.prototype.slice.call(
+    document.querySelectorAll('.card, .case, .testimonial, .values, #contacts .form, #contacts .contacts__info')
+  );
 
   // Stagger siblings that share the same parent container (grids of cards),
   // each one firing ~90ms after the previous within that group.

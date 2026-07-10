@@ -51,26 +51,30 @@
     <div class="container">
       <h2 class="section__title"><span class="section__num">01</span>Услуги</h2>
       <p class="section__subtitle">Полный спектр маркетинговых решений для вашего бизнеса</p>
-      <div class="grid grid--4">
-        <div class="card glow-card">
-          <div class="card__icon" aria-hidden="true"></div>
-          <h3 class="card__title">Услуга №1</h3>
-          <p class="card__text">Короткое описание услуги-заглушки. Здесь будет реальный текст о том, что делает агентство.</p>
+      <div class="services__layout">
+        <div class="services__featured">
+          <div class="card glow-card card--featured">
+            <div class="card__icon" aria-hidden="true"></div>
+            <h3 class="card__title">Услуга №1</h3>
+            <p class="card__text">Развёрнутое описание услуги-заглушки: здесь будет подробный рассказ о том, какую задачу клиента решает эта услуга, из каких этапов состоит работа и какой измеримый результат получает бизнес на выходе.</p>
+          </div>
         </div>
-        <div class="card glow-card">
-          <div class="card__icon" aria-hidden="true"></div>
-          <h3 class="card__title">Услуга №2</h3>
-          <p class="card__text">Короткое описание услуги-заглушки. Здесь будет реальный текст о том, что делает агентство.</p>
-        </div>
-        <div class="card glow-card">
-          <div class="card__icon" aria-hidden="true"></div>
-          <h3 class="card__title">Услуга №3</h3>
-          <p class="card__text">Короткое описание услуги-заглушки. Здесь будет реальный текст о том, что делает агентство.</p>
-        </div>
-        <div class="card glow-card">
-          <div class="card__icon" aria-hidden="true"></div>
-          <h3 class="card__title">Услуга №4</h3>
-          <p class="card__text">Короткое описание услуги-заглушки. Здесь будет реальный текст о том, что делает агентство.</p>
+        <div class="services__list">
+          <div class="card glow-card card--compact">
+            <div class="card__icon" aria-hidden="true"></div>
+            <h3 class="card__title">Услуга №2</h3>
+            <p class="card__text">Короткое описание услуги-заглушки. Здесь будет реальный текст о том, что делает агентство.</p>
+          </div>
+          <div class="card glow-card card--compact">
+            <div class="card__icon" aria-hidden="true"></div>
+            <h3 class="card__title">Услуга №3</h3>
+            <p class="card__text">Короткое описание услуги-заглушки. Здесь будет реальный текст о том, что делает агентство.</p>
+          </div>
+          <div class="card glow-card card--compact">
+            <div class="card__icon" aria-hidden="true"></div>
+            <h3 class="card__title">Услуга №4</h3>
+            <p class="card__text">Короткое описание услуги-заглушки. Здесь будет реальный текст о том, что делает агентство.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -83,8 +87,8 @@
       <!-- TODO: добавить видео кейсов — если у .case задан data-video, при
            hover оно проигрывается (autoplay, muted, loop) поверх плейсхолдера;
            без data-video плейсхолдер остаётся статичным, как сейчас. -->
-      <div class="grid grid--3">
-        <div class="case glow-card">
+      <div class="portfolio__grid">
+        <div class="case glow-card case--large">
           <div class="case__image placeholder-visual" aria-hidden="true">
             <span class="blob blob--orange blob--a"></span>
             <span class="blob blob--green blob--b"></span>
@@ -95,7 +99,7 @@
             <p class="case__text">Краткое описание задачи и результата — плейсхолдер.</p>
           </div>
         </div>
-        <div class="case glow-card">
+        <div class="case glow-card case--b">
           <div class="case__image placeholder-visual" aria-hidden="true">
             <span class="blob blob--orange blob--a"></span>
             <span class="blob blob--green blob--b"></span>
@@ -106,7 +110,7 @@
             <p class="case__text">Краткое описание задачи и результата — плейсхолдер.</p>
           </div>
         </div>
-        <div class="case glow-card">
+        <div class="case glow-card case--c">
           <div class="case__image placeholder-visual" aria-hidden="true">
             <span class="blob blob--orange blob--a"></span>
             <span class="blob blob--green blob--b"></span>
@@ -201,26 +205,34 @@
     <div class="container">
       <h2 class="section__title"><span class="section__num">04</span>Команда</h2>
       <p class="section__subtitle">Люди, которые работают над вашими проектами</p>
-      <div class="grid grid--4">
-        <div class="card glow-card team__card">
+      <div class="team__diagonal">
+        <div class="card glow-card team__card team__card--1">
           <div class="team__avatar" aria-hidden="true"></div>
-          <h3 class="team__name">Имя Фамилия</h3>
-          <p class="team__role">Должность</p>
+          <div class="team__info">
+            <h3 class="team__name">Имя Фамилия</h3>
+            <p class="team__role">Должность</p>
+          </div>
         </div>
-        <div class="card glow-card team__card">
+        <div class="card glow-card team__card team__card--2">
           <div class="team__avatar" aria-hidden="true"></div>
-          <h3 class="team__name">Имя Фамилия</h3>
-          <p class="team__role">Должность</p>
+          <div class="team__info">
+            <h3 class="team__name">Имя Фамилия</h3>
+            <p class="team__role">Должность</p>
+          </div>
         </div>
-        <div class="card glow-card team__card">
+        <div class="card glow-card team__card team__card--3">
           <div class="team__avatar" aria-hidden="true"></div>
-          <h3 class="team__name">Имя Фамилия</h3>
-          <p class="team__role">Должность</p>
+          <div class="team__info">
+            <h3 class="team__name">Имя Фамилия</h3>
+            <p class="team__role">Должность</p>
+          </div>
         </div>
-        <div class="card glow-card team__card">
+        <div class="card glow-card team__card team__card--4">
           <div class="team__avatar" aria-hidden="true"></div>
-          <h3 class="team__name">Имя Фамилия</h3>
-          <p class="team__role">Должность</p>
+          <div class="team__info">
+            <h3 class="team__name">Имя Фамилия</h3>
+            <p class="team__role">Должность</p>
+          </div>
         </div>
       </div>
     </div>
@@ -230,8 +242,9 @@
     <div class="container">
       <h2 class="section__title"><span class="section__num">05</span>Отзывы</h2>
       <p class="section__subtitle">Что говорят о нас клиенты</p>
-      <div class="grid grid--3">
-        <div class="testimonial glow-card">
+      <div class="testimonials__layout">
+        <div class="testimonial glow-card testimonial--featured">
+          <span class="testimonial__quote-mark" aria-hidden="true">&ldquo;</span>
           <p class="testimonial__text">«Плейсхолдер-отзыв клиента о работе с агентством. Реальный текст будет добавлен позже.»</p>
           <div class="testimonial__author">
             <div class="testimonial__avatar" aria-hidden="true"></div>
@@ -241,23 +254,25 @@
             </div>
           </div>
         </div>
-        <div class="testimonial glow-card">
-          <p class="testimonial__text">«Плейсхолдер-отзыв клиента о работе с агентством. Реальный текст будет добавлен позже.»</p>
-          <div class="testimonial__author">
-            <div class="testimonial__avatar" aria-hidden="true"></div>
-            <div>
-              <div class="testimonial__name">Имя Фамилия</div>
-              <div class="testimonial__role">Должность, Компания</div>
+        <div class="testimonials__strip">
+          <div class="testimonial glow-card testimonial--preview">
+            <p class="testimonial__text">«Плейсхолдер-отзыв клиента о работе с агентством. Реальный текст будет добавлен позже.»</p>
+            <div class="testimonial__author">
+              <div class="testimonial__avatar" aria-hidden="true"></div>
+              <div>
+                <div class="testimonial__name">Имя Фамилия</div>
+                <div class="testimonial__role">Должность, Компания</div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="testimonial glow-card">
-          <p class="testimonial__text">«Плейсхолдер-отзыв клиента о работе с агентством. Реальный текст будет добавлен позже.»</p>
-          <div class="testimonial__author">
-            <div class="testimonial__avatar" aria-hidden="true"></div>
-            <div>
-              <div class="testimonial__name">Имя Фамилия</div>
-              <div class="testimonial__role">Должность, Компания</div>
+          <div class="testimonial glow-card testimonial--preview">
+            <p class="testimonial__text">«Плейсхолдер-отзыв клиента о работе с агентством. Реальный текст будет добавлен позже.»</p>
+            <div class="testimonial__author">
+              <div class="testimonial__avatar" aria-hidden="true"></div>
+              <div>
+                <div class="testimonial__name">Имя Фамилия</div>
+                <div class="testimonial__role">Должность, Компания</div>
+              </div>
             </div>
           </div>
         </div>
