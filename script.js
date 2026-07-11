@@ -397,19 +397,30 @@
     return Math.max(min, Math.min(max, v));
   }
 
-  function applyLayer(els, coef, max) {
+  // Layer 2 writes to a CSS variable rather than the transform property
+  // directly, because .section__title also carries the velocity-based
+  // skewY from the kinetic-typography IIFE below — both need to land in
+  // the same transform without one overwriting the other (see the
+  // combined `translateY(var(--parallax-y)) skewY(var(--skew-deg))` rule
+  // in styles.css). Layer 4's targets have no competing transform, so
+  // they can keep setting it directly.
+  function applyLayer(els, coef, max, useVar) {
     var vh = window.innerHeight;
     els.forEach(function (el) {
       var rect = el.getBoundingClientRect();
       var distance = vh / 2 - (rect.top + rect.height / 2);
       var offset = clamp(distance * coef, -max, max);
-      el.style.transform = 'translateY(' + offset + 'px)';
+      if (useVar) {
+        el.style.setProperty('--parallax-y', offset + 'px');
+      } else {
+        el.style.transform = 'translateY(' + offset + 'px)';
+      }
     });
   }
 
   function update() {
-    applyLayer(layer2, LAYER2_COEF, LAYER2_MAX);
-    applyLayer(layer4, LAYER4_COEF, LAYER4_MAX);
+    applyLayer(layer2, LAYER2_COEF, LAYER2_MAX, true);
+    applyLayer(layer4, LAYER4_COEF, LAYER4_MAX, false);
 
     var blobShift = clamp(window.scrollY * BLOB_COEF, 0, MAX_BLOB_SHIFT);
     heroBlobs.forEach(function (blob) {
@@ -451,4 +462,238 @@
   }
 
   requestAnimationFrame(loop);
+})();
+
+(function () {
+  // Kinetic typography: headings skew proportionally to scroll VELOCITY
+  // (not position), as if resisting scroll inertia — fast flings tilt them
+  // up to ~9deg, and easing off scroll lets a lerp settle it back to 0
+  // (a lightweight stand-in for a real spring). Explicitly required to
+  // run on mobile too (unlike the position-based parallax above), so
+  // there's no isMobile/lowPower gate here — only reduced-motion.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var targets = Array.prototype.slice.call(document.querySelectorAll('.hero__title, .section__title'));
+  if (!targets.length) return;
+
+  var SKEW_MAX = 9;
+  var SKEW_SENSITIVITY = 3.2;
+  var SPRING_RATE = 0.25;
+
+  var lastScrollY = window.scrollY;
+  var lastTime = performance.now();
+  var currentSkew = 0;
+
+  function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
+  function loop(now) {
+    var dt = Math.max(1, now - lastTime);
+    var velocity = (window.scrollY - lastScrollY) / dt;
+    lastScrollY = window.scrollY;
+    lastTime = now;
+
+    var target = clamp(velocity * SKEW_SENSITIVITY, -SKEW_MAX, SKEW_MAX);
+    currentSkew += (target - currentSkew) * SPRING_RATE;
+    if (Math.abs(currentSkew) < 0.01) currentSkew = 0;
+
+    var value = currentSkew.toFixed(2) + 'deg';
+    targets.forEach(function (el) {
+      el.style.setProperty('--skew-deg', value);
+    });
+
+    requestAnimationFrame(loop);
+  }
+
+  requestAnimationFrame(loop);
+})();
+
+(function () {
+  // Word-by-word stagger reveal for headings, plus a scale-punch for the
+  // section number sitting inside them — one-shot, via IntersectionObserver,
+  // same as the card reveal system. Runs on mobile too (cheap: just CSS
+  // transitions/keyframes triggered by a class), only reduced-motion opts
+  // out entirely.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
+
+  function splitWords(el) {
+    var originalNodes = Array.prototype.slice.call(el.childNodes);
+    var replacementNodes = [];
+    var words = [];
+
+    originalNodes.forEach(function (node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        var parts = node.textContent.split(/(\s+)/);
+        parts.forEach(function (part) {
+          if (part === '') return;
+          if (/^\s+$/.test(part)) {
+            replacementNodes.push(document.createTextNode(part));
+            return;
+          }
+          var span = document.createElement('span');
+          span.className = 'split-word';
+          span.textContent = part;
+          replacementNodes.push(span);
+          words.push(span);
+        });
+      } else {
+        // Element nodes (e.g. the .accent span) are kept as one whole
+        // stagger unit rather than split further — except .section__num,
+        // which has its own bespoke punch animation and must keep its
+        // resting opacity/color instead of inheriting .split-word's
+        // opacity: 0 starting state.
+        if (!node.classList.contains('section__num')) {
+          node.classList.add('split-word');
+          words.push(node);
+        }
+        replacementNodes.push(node);
+      }
+    });
+
+    el.innerHTML = '';
+    replacementNodes.forEach(function (node) {
+      el.appendChild(node);
+    });
+
+    return words;
+  }
+
+  var headings = Array.prototype.slice.call(document.querySelectorAll('.hero__title, .section__title'));
+
+  var observer = new IntersectionObserver(function (entries, obs) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var heading = entry.target;
+      var words = splitWords(heading);
+      var numEl = heading.querySelector('.section__num');
+
+      words.forEach(function (word, i) {
+        setTimeout(function () {
+          word.classList.add('is-visible');
+        }, i * 40);
+      });
+
+      if (numEl) numEl.classList.add('is-visible');
+      obs.unobserve(heading);
+    });
+  }, { threshold: 0.2 });
+
+  headings.forEach(function (heading) {
+    observer.observe(heading);
+  });
+})();
+
+(function () {
+  // Magnetic buttons: CTAs pull toward the cursor within ~90px, spring
+  // back on release. Desktop/mouse only — meaningless on touch.
+  var isMobile = window.matchMedia('(max-width: 720px)').matches;
+  var noHover = window.matchMedia('(hover: none)').matches;
+  if (isMobile || noHover) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('.cta'));
+  if (!buttons.length) return;
+
+  var RADIUS = 90;
+  var MAX_PULL = 18;
+  var mouseX = null;
+  var mouseY = null;
+
+  document.addEventListener('mousemove', function (e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  }, { passive: true });
+
+  function loop() {
+    if (mouseX !== null) {
+      buttons.forEach(function (btn) {
+        var rect = btn.getBoundingClientRect();
+        var cx = rect.left + rect.width / 2;
+        var cy = rect.top + rect.height / 2;
+        var dx = mouseX - cx;
+        var dy = mouseY - cy;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < RADIUS) {
+          var pull = (1 - dist / RADIUS) * MAX_PULL;
+          var tx = (dx / (dist || 1)) * pull;
+          var ty = (dy / (dist || 1)) * pull;
+          btn.style.transition = 'transform 0.1s ease-out';
+          btn.style.transform = 'translate(' + tx.toFixed(1) + 'px, ' + ty.toFixed(1) + 'px)';
+          btn.dataset.magnetActive = '1';
+        } else if (btn.dataset.magnetActive) {
+          delete btn.dataset.magnetActive;
+          btn.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          btn.style.transform = 'translate(0px, 0px)';
+          btn.addEventListener('transitionend', function onEnd() {
+            btn.removeEventListener('transitionend', onEnd);
+            // Only clear the inline styles (handing control back to the
+            // normal :active press-scale rule) if the cursor hasn't
+            // re-entered the magnetic radius while this was settling.
+            if (!btn.dataset.magnetActive) {
+              btn.style.transform = '';
+              btn.style.transition = '';
+            }
+          });
+        }
+      });
+    }
+    requestAnimationFrame(loop);
+  }
+
+  requestAnimationFrame(loop);
+})();
+
+(function () {
+  // Custom aggressive cursor: a small dot that lerps toward the pointer
+  // almost instantly, and punches up to a large mix-blend-mode: difference
+  // circle over interactive elements. Desktop/mouse only — not created at
+  // all on mobile/touch, rather than merely hidden.
+  var isMobile = window.matchMedia('(max-width: 720px)').matches;
+  var noHover = window.matchMedia('(hover: none)').matches;
+  if (isMobile || noHover) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var cursor = document.getElementById('cursor');
+  if (!cursor) return;
+
+  document.body.classList.add('has-custom-cursor');
+
+  var mouseX = window.innerWidth / 2;
+  var mouseY = window.innerHeight / 2;
+  var curX = mouseX;
+  var curY = mouseY;
+  var LERP = 0.28;
+
+  document.addEventListener('mousemove', function (e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  }, { passive: true });
+
+  function loop() {
+    curX += (mouseX - curX) * LERP;
+    curY += (mouseY - curY) * LERP;
+    cursor.style.transform = 'translate3d(' + curX.toFixed(1) + 'px, ' + curY.toFixed(1) + 'px, 0)';
+    requestAnimationFrame(loop);
+  }
+
+  requestAnimationFrame(loop);
+
+  var INTERACTIVE_SELECTOR = 'a, button, .card, .case, .testimonial, .values__card';
+
+  document.addEventListener('mouseover', function (e) {
+    if (e.target.closest(INTERACTIVE_SELECTOR)) {
+      cursor.classList.add('is-hovering');
+    }
+  });
+
+  document.addEventListener('mouseout', function (e) {
+    if (!e.target.closest(INTERACTIVE_SELECTOR)) return;
+    var enteringInteractive = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(INTERACTIVE_SELECTOR);
+    if (!enteringInteractive) {
+      cursor.classList.remove('is-hovering');
+    }
+  });
 })();
