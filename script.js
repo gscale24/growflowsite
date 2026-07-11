@@ -380,9 +380,9 @@
   var layer2 = Array.prototype.slice.call(document.querySelectorAll('.section__title'));
   // Layer 4: small foreground accents — faster than scroll (~1.25x).
   var layer4 = Array.prototype.slice.call(document.querySelectorAll('.stat__number, .testimonial__quote-mark'));
-  // Hero-only accent blobs: tied to raw scroll position (see below) because
-  // they sit inside the sticky hero, whose own viewport position freezes
-  // while pinned — a viewport-center-relative offset would go still there.
+  // Hero-only accent blobs: tied to raw scroll position (see below) since
+  // they're absolutely positioned within the hero rather than centered in
+  // the viewport, so a viewport-center-relative offset wouldn't apply.
   var heroBlobs = Array.prototype.slice.call(document.querySelectorAll('.hero__blob'));
   if (!layer2.length && !layer4.length && !heroBlobs.length) return;
 
@@ -426,34 +426,6 @@
     heroBlobs.forEach(function (blob) {
       blob.style.transform = 'translateY(' + blobShift + 'px)';
     });
-  }
-
-  function loop() {
-    update();
-    requestAnimationFrame(loop);
-  }
-
-  requestAnimationFrame(loop);
-})();
-
-(function () {
-  // Hero → Services sticky handoff: .hero is 150vh tall with a 100vh
-  // sticky inner, so it stays pinned for 50vh of extra scroll while
-  // #services (pulled up by margin-top: -50vh) slides over it from below.
-  // Fading the pinned hero out over that same 50vh keeps the handoff a
-  // graceful recede instead of the incoming content visually colliding
-  // with hero text that's still at full opacity underneath it. Runs as a
-  // continuous rAF loop reading absolute scrollY every frame (same
-  // reasoning as the parallax loop above) so the fade is identical
-  // whether scrolling down into it or back up out of it.
-  var sticky = document.querySelector('.hero__sticky');
-  if (!sticky) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  function update() {
-    var fadeDistance = window.innerHeight * 0.5;
-    var t = Math.max(0, Math.min(1, window.scrollY / fadeDistance));
-    sticky.style.opacity = String(1 - t);
   }
 
   function loop() {

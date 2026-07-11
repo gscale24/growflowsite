@@ -64,7 +64,6 @@
       <a href="#testimonials">Отзывы</a>
       <a href="#contacts">Контакты</a>
     </nav>
-    <button class="cta cta--small" data-open-modal>Оставить заявку</button>
     <button class="burger" id="burger" aria-label="Открыть меню">
       <span></span><span></span><span></span>
     </button>
@@ -75,14 +74,25 @@
 
   <section class="hero" id="hero">
     <!-- TODO: заменить на реальное фото команды/продукта, когда будет готово -->
-    <div class="hero__sticky">
+    <div class="hero__stage">
+      <div class="hero__vignette" aria-hidden="true"></div>
       <span class="hero__blob hero__blob--a" aria-hidden="true"></span>
       <span class="hero__blob hero__blob--b" aria-hidden="true"></span>
-      <div class="container hero__inner">
-        <h1 class="hero__title">Маркетинг, который <span class="accent">двигает</span> бизнес вперёд</h1>
+
+      <div class="hero__content">
+        <h1 class="hero__title">
+          <span class="hero__title-row hero__title-row--sm">Маркетинг, который</span>
+          <span class="hero__title-row hero__title-row--bleed"><span class="accent">двигает</span></span>
+          <span class="hero__title-row hero__title-row--sm">бизнес вперёд</span>
+        </h1>
         <p class="hero__subtitle">Мы помогаем компаниям расти с помощью продуманных стратегий, digital-продвижения и креатива, который работает на результат.</p>
-        <button class="cta" data-open-modal>Оставить заявку</button>
+        <button class="cta hero__cta" data-open-modal>Оставить заявку <span class="hero__cta-arrow" aria-hidden="true">→</span></button>
       </div>
+
+      <div class="hero__hud hero__hud--left" aria-hidden="true">GROW FLOW © 2026</div>
+      <div class="hero__hud hero__hud--right" aria-hidden="true"><span class="hero__hud-dot"></span>ДОСТУПНЫ ДЛЯ ПРОЕКТОВ</div>
+
+      <div class="hero__scroll-cue" aria-hidden="true"><span></span></div>
     </div>
   </section>
 

@@ -32,6 +32,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -40,6 +41,7 @@ body {
   background: var(--color-bg);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 img,
@@ -207,14 +209,32 @@ button:focus-visible {
 }
 
 .nav {
+  position: fixed;
+  top: var(--header-height);
+  right: 20px;
+  min-width: 200px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
   display: flex;
-  gap: 38px;
-  flex: 1;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  gap: 18px;
+  transform: translateY(-12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.nav.is-open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .nav a {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--color-text-muted);
   transition: color 0.2s ease;
 }
@@ -224,7 +244,7 @@ button:focus-visible {
 }
 
 .burger {
-  display: none;
+  display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 5px;
@@ -294,12 +314,6 @@ button:focus-visible {
   }
 }
 
-.cta--small {
-  padding: 8px 18px;
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
-
 .cta--full {
   width: 100%;
 }
@@ -319,35 +333,45 @@ button:focus-visible {
   height: 100vh;
 }
 
-/* Hero */
+/* Hero — full-bleed, card-free composition: no rounded panels/containers,
+   just the shared background + oversized type sitting directly on it. */
 
 .hero {
   position: relative;
-  height: 150vh;
+  height: 100vh;
+  min-height: 560px;
 }
 
-/* The hero's content stays pinned at the top of the viewport for an extra
-   50vh of scroll (the difference between .hero's 150vh and this 100vh),
-   during which #services (pulled up by margin-top: -50vh) slides up from
-   below and visually overlaps it — a continuous handoff instead of a hard
-   section boundary. */
-.hero__sticky {
-  position: sticky;
-  top: 0;
-  height: 100vh;
+.hero__stage {
+  position: relative;
+  height: 100%;
   display: flex;
   align-items: center;
+  padding: 120px 0 110px;
   overflow: hidden;
 }
 
+/* Cinematic vignette over the shared shader/video background, scoped to
+   the hero only — darker at the edges, brightest around the text's focal
+   point, so the giant type reads clearly with no solid panel behind it. */
+.hero__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 72% 58% at 30% 40%, rgba(15, 43, 30, 0) 0%, rgba(9, 25, 17, 0.5) 45%, rgba(4, 12, 9, 0.96) 100%),
+    linear-gradient(to top, rgba(4, 12, 9, 0.8) 0%, rgba(4, 12, 9, 0) 32%);
+}
+
 /* Optional hero background video (see hero-video.js) — sits above the
-   page-wide shader canvas but behind the blobs/text, scoped to the hero
+   page-wide shader canvas but behind the vignette/text, scoped to the hero
    only. Only ever created if HERO_VIDEO_URL is set, so this rule is
    inert otherwise. Fades in on 'canplay' rather than popping in hard. */
 .hero__video {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -367,7 +391,7 @@ button:focus-visible {
   z-index: 0;
   border-radius: 50%;
   filter: blur(70px);
-  opacity: 0.32;
+  opacity: 0.22;
   pointer-events: none;
   will-change: transform;
 }
@@ -402,24 +426,40 @@ button:focus-visible {
   background: #2f6349;
 }
 
-.hero__inner {
+.hero__content {
   position: relative;
   z-index: 1;
-  max-width: 1040px;
-  margin-right: auto;
-  text-align: left;
+  width: 100%;
+  max-width: 62%;
+  padding-left: 40px;
+  overflow: visible;
 }
 
 .hero__title {
   font-family: var(--font-serif);
-  font-size: clamp(3.4rem, 8.5vw, 7.5rem);
   font-weight: 400;
+  line-height: 0.94;
   letter-spacing: -0.01em;
-  line-height: 1.05;
-  margin-bottom: 28px;
-  text-shadow: 0 4px 32px rgba(8, 22, 15, 0.85), 0 1px 3px rgba(8, 22, 15, 0.9);
+  margin-bottom: 40px;
+  overflow: visible;
   transform: skewY(var(--skew-deg, 0deg));
   will-change: transform;
+}
+
+.hero__title-row {
+  display: inline-block;
+  width: 100%;
+  white-space: nowrap;
+  text-shadow: 0 4px 32px rgba(8, 22, 15, 0.85), 0 1px 3px rgba(8, 22, 15, 0.9);
+}
+
+.hero__title-row--sm {
+  font-size: clamp(1.7rem, 3.4vw, 3rem);
+}
+
+.hero__title-row--bleed {
+  font-size: clamp(4rem, 12vw, 11rem);
+  margin: 4px 0;
 }
 
 .hero__title .accent {
@@ -429,9 +469,129 @@ button:focus-visible {
 .hero__subtitle {
   font-size: 1.15rem;
   color: var(--color-text-muted);
-  max-width: 480px;
-  margin-bottom: 44px;
+  max-width: 420px;
+  margin-bottom: 40px;
   text-shadow: 0 2px 20px rgba(8, 22, 15, 0.8);
+}
+
+.hero__cta {
+  background: none;
+  color: var(--color-text);
+  padding: 0 0 7px;
+  border-radius: 0;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--color-accent-faint-border);
+  transition: border-color 0.2s ease, transform 0.15s ease;
+}
+
+.hero__cta::after {
+  display: none;
+}
+
+.hero__cta:hover {
+  background: none;
+  border-color: var(--color-accent);
+}
+
+.hero__cta-arrow {
+  transition: transform 0.2s ease;
+}
+
+.hero__cta:hover .hero__cta-arrow {
+  transform: translateX(4px);
+}
+
+/* HUD-style corner labels: minimal, low-opacity status readouts rather
+   than UI chrome. */
+.hero__hud {
+  position: absolute;
+  z-index: 1;
+  bottom: 28px;
+  font-family: "SF Mono", "IBM Plex Mono", "Courier New", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero__hud--left {
+  left: 40px;
+}
+
+.hero__hud--right {
+  right: 40px;
+}
+
+.hero__hud-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6fbf8b;
+  animation: hero-hud-pulse 2s ease-out infinite;
+}
+
+@keyframes hero-hud-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(111, 191, 139, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(111, 191, 139, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(111, 191, 139, 0);
+  }
+}
+
+.hero__scroll-cue {
+  position: absolute;
+  z-index: 1;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 40px;
+  overflow: hidden;
+  opacity: 0.5;
+}
+
+.hero__scroll-cue span {
+  display: block;
+  width: 1px;
+  height: 16px;
+  background: var(--color-text);
+  animation: hero-scroll-cue 1.8s ease-in-out infinite;
+}
+
+@keyframes hero-scroll-cue {
+  0% {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__hud-dot {
+    animation: none;
+  }
+  .hero__scroll-cue span {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Sections — no per-section background or divider borders; every section
@@ -444,7 +604,6 @@ button:focus-visible {
 
 #services {
   z-index: 1;
-  margin-top: -50vh;
 }
 
 .section__title {
@@ -1710,43 +1869,39 @@ body.has-custom-cursor .values__card {
 
 @media (max-width: 720px) {
   .nav {
-    position: fixed;
-    top: var(--header-height);
     left: 20px;
     right: 20px;
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 0;
-    gap: 18px;
-    transform: translateY(-12px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    min-width: 0;
   }
 
-  .nav.is-open {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
+  .hero__content {
+    max-width: 100%;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
-  .burger {
-    display: flex;
+  .hero__title-row--sm {
+    font-size: clamp(1.4rem, 6vw, 1.9rem);
   }
 
-  .cta--small {
-    display: none;
+  .hero__title-row--bleed {
+    font-size: clamp(2.8rem, 15vw, 5rem);
   }
 
-  .hero {
-    padding: 120px 0 48px;
+  .hero__title-row {
+    white-space: normal;
   }
 
-  .hero__title {
-    letter-spacing: -0.02em;
+  .hero__hud {
+    font-size: 0.62rem;
+  }
+
+  .hero__hud--left {
+    left: 20px;
+  }
+
+  .hero__hud--right {
+    right: 20px;
   }
 
   .section {

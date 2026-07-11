@@ -11,7 +11,7 @@
 
   if (!HERO_VIDEO_URL) return;
 
-  var sticky = document.querySelector('.hero__sticky');
+  var sticky = document.querySelector('.hero__stage');
   if (!sticky) return;
 
   var video = document.createElement('video');
