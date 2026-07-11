@@ -353,7 +353,11 @@ button:focus-visible {
 
 /* Cinematic vignette over the shared shader/video background, scoped to
    the hero only — darker at the edges, brightest around the text's focal
-   point, so the giant type reads clearly with no solid panel behind it. */
+   point, so the giant type reads clearly with no solid panel behind it.
+   The plain top-to-bottom layer underneath is a flat legibility guarantee
+   independent of whatever's happening in-frame in the video at any given
+   moment (the radial/edge layers on top are the "look", this is the
+   "just in case" floor). */
 .hero__vignette {
   position: absolute;
   inset: 0;
@@ -361,7 +365,8 @@ button:focus-visible {
   pointer-events: none;
   background:
     radial-gradient(ellipse 72% 58% at 30% 40%, rgba(15, 43, 30, 0) 0%, rgba(9, 25, 17, 0.5) 45%, rgba(4, 12, 9, 0.96) 100%),
-    linear-gradient(to top, rgba(4, 12, 9, 0.8) 0%, rgba(4, 12, 9, 0) 32%);
+    linear-gradient(to top, rgba(4, 12, 9, 0.8) 0%, rgba(4, 12, 9, 0) 32%),
+    linear-gradient(to bottom, rgba(15, 43, 30, 0.3) 0%, rgba(15, 43, 30, 0.7) 100%);
 }
 
 /* Optional hero background video (see hero-video.js) — sits above the
