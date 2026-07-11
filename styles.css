@@ -984,6 +984,81 @@ button:focus-visible {
   }
 }
 
+/* Showreel — a single content-width video, not full-bleed; plays only
+   once scrolled into view (see script.js), with its own play/pause and
+   mute controls rather than relying purely on autoplay. */
+
+.showreel__frame {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+}
+
+.showreel__video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.showreel__controls {
+  position: absolute;
+  z-index: 1;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  gap: 10px;
+}
+
+.showreel__btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(15, 43, 30, 0.65);
+  border: 1px solid var(--color-glass-border);
+  backdrop-filter: blur(8px) saturate(150%);
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.showreel__btn:hover {
+  background: rgba(15, 43, 30, 0.88);
+}
+
+.showreel__btn:active {
+  transform: scale(0.92);
+}
+
+.showreel__icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* The site-wide `svg { display: block; }` rule is an author style, so it
+   beats the browser's default `[hidden] { display: none; }` UA style
+   regardless of selector specificity — without this, a hidden icon still
+   renders. */
+.showreel__icon[hidden] {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .showreel__frame {
+    aspect-ratio: 4 / 3;
+  }
+}
+
 /* Client marquee */
 
 .clients {

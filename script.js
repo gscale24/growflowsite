@@ -356,6 +356,70 @@
 })();
 
 (function () {
+  // Showreel: a real, contentful video (not a hover preview) — plays only
+  // once scrolled into view, with its own play/pause + mute controls so
+  // it's never solely at the mercy of autoplay. Manually pausing sticks
+  // across scroll-out/scroll-in cycles; only leaving the viewport (never
+  // an explicit user choice) auto-pauses and auto-resumes.
+  var frame = document.getElementById('showreel-frame');
+  var video = document.getElementById('showreel-video');
+  var playBtn = document.getElementById('showreel-play');
+  var muteBtn = document.getElementById('showreel-mute');
+  if (!frame || !video || !playBtn || !muteBtn) return;
+
+  var userPaused = false;
+
+  function updatePlayIcon() {
+    var playing = !video.paused;
+    playBtn.querySelector('.showreel__icon--pause').hidden = !playing;
+    playBtn.querySelector('.showreel__icon--play').hidden = playing;
+    playBtn.setAttribute('aria-label', playing ? 'Пауза' : 'Воспроизвести');
+  }
+
+  function updateMuteIcon() {
+    muteBtn.querySelector('.showreel__icon--unmuted').hidden = video.muted;
+    muteBtn.querySelector('.showreel__icon--muted').hidden = !video.muted;
+    muteBtn.setAttribute('aria-label', video.muted ? 'Включить звук' : 'Выключить звук');
+  }
+
+  playBtn.addEventListener('click', function () {
+    if (video.paused) {
+      userPaused = false;
+      video.play().catch(function () {});
+    } else {
+      userPaused = true;
+      video.pause();
+    }
+  });
+
+  muteBtn.addEventListener('click', function () {
+    video.muted = !video.muted;
+    updateMuteIcon();
+  });
+
+  video.addEventListener('play', updatePlayIcon);
+  video.addEventListener('pause', updatePlayIcon);
+
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          if (!userPaused) video.play().catch(function () {});
+        } else {
+          video.pause();
+        }
+      });
+    }, { threshold: 0.4 });
+    observer.observe(frame);
+  } else {
+    video.play().catch(function () {});
+  }
+
+  updatePlayIcon();
+  updateMuteIcon();
+})();
+
+(function () {
   // Unified, page-wide parallax: one continuous requestAnimationFrame loop
   // computes every layer's offset together (not per-section observers,
   // and not gated behind the 'scroll' event), matching the "seamless page"
