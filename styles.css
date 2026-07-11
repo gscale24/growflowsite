@@ -1,23 +1,24 @@
 :root {
-  --color-bg: #0f2b1e;
-  --color-bg-alt: #15331f;
-  --color-bg-elevated: #1b3a28;
-  --color-text: #f4f1e8;
-  --color-text-muted: #a9bba9;
-  --color-border: rgba(196, 214, 196, 0.16);
-  --color-accent: #c97a3e;
-  --color-accent-hover: #b96c31;
-  --color-accent-text: #0f2b1e;
-  --color-placeholder: rgba(244, 241, 232, 0.07);
-  --color-accent-soft-bg: rgba(201, 122, 62, 0.14);
-  --color-accent-soft-border: rgba(201, 122, 62, 0.4);
-  --color-accent-faint-border: rgba(201, 122, 62, 0.32);
+  --color-bg: #0a0a0a;
+  --color-bg-alt: #121212;
+  --color-bg-elevated: #161616;
+  --color-text: #f5f5f5;
+  --color-text-muted: #8a8a8a;
+  --color-border: rgba(255, 255, 255, 0.14);
+  --color-accent: #e8e3d8;
+  --color-accent-hover: #d8d2c3;
+  --color-accent-text: #0a0a0a;
+  --color-placeholder: rgba(245, 245, 245, 0.06);
+  --color-accent-soft-bg: rgba(232, 227, 216, 0.12);
+  --color-accent-soft-border: rgba(232, 227, 216, 0.35);
+  --color-accent-faint-border: rgba(232, 227, 216, 0.28);
+  --color-decor-gray: #4a4a4a;
   --font-serif: Georgia, "Iowan Old Style", "Palatino Linotype", "URW Palladio L", serif;
   --radius: 14px;
   --container-width: 1160px;
   --header-height: 88px;
-  --color-glass-bg: rgba(255, 255, 255, 0.09);
-  --color-glass-border: rgba(255, 255, 255, 0.16);
+  --color-glass-bg: rgba(255, 255, 255, 0.05);
+  --color-glass-border: rgba(255, 255, 255, 0.14);
   --reveal-y: 70px;
   --reveal-scale: 0.9;
   --ease-punch: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -144,7 +145,7 @@ button:focus-visible {
   font-family: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
   font-size: 0.85rem;
   letter-spacing: 0.08em;
-  color: rgba(244, 241, 232, 0.55);
+  color: rgba(245, 245, 245, 0.55);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -155,34 +156,32 @@ button:focus-visible {
 
 /* Header */
 
+/* A soft top-edge gradient (not a boxed panel) keeps the logo/burger
+   legible over a bright video frame without reintroducing a visible
+   "plашка" behind them — see .header below, which is otherwise fully
+   transparent. */
 .header__scrim {
   position: fixed;
   inset: 0 0 auto 0;
   height: 130px;
   z-index: 99;
   pointer-events: none;
-  background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg) 65%, rgba(15, 43, 30, 0) 100%);
+  background: linear-gradient(to bottom, rgba(10, 10, 10, 0.55) 0%, rgba(10, 10, 10, 0) 100%);
 }
 
+/* No capsule/pill container — just a transparent bar floating directly
+   over the hero video, logo left, burger right. */
 .header {
   position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
-  width: calc(100% - 40px);
-  max-width: 1120px;
-  background: rgba(13, 37, 26, 0.92);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
 .header__inner {
-  height: 52px;
-  padding: 0 10px 0 18px;
+  height: var(--header-height);
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -198,7 +197,7 @@ button:focus-visible {
 .logo__mark {
   width: 22px;
   height: 22px;
-  color: var(--color-accent);
+  color: var(--color-text);
   flex-shrink: 0;
 }
 
@@ -264,54 +263,42 @@ button:focus-visible {
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
-/* Buttons */
+/* Buttons — text + arrow, no fill/pill (see item 5 of the monochrome
+   rebuild): a thin underline at rest brightens to the accent on hover. */
 
 .cta {
   position: relative;
-  z-index: 0;
-  display: inline-block;
-  background: var(--color-accent);
-  color: var(--color-accent-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  color: var(--color-text);
   font-weight: 600;
   font-size: 0.95rem;
-  padding: 14px 28px;
-  border-radius: 999px;
+  padding: 0 0 7px;
   border: none;
+  border-bottom: 1px solid var(--color-accent-faint-border);
+  border-radius: 0;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition: border-color 0.2s ease, transform 0.15s ease;
 }
 
 .cta::after {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  z-index: -1;
-  border-radius: 999px;
-  background: conic-gradient(from 0deg, transparent 0deg, transparent 265deg, rgba(244, 241, 232, 0.95) 300deg, var(--color-accent) 330deg, transparent 355deg);
-  opacity: 0;
-  transition: opacity 0.25s ease;
-  animation: cta-border-spin 2.4s linear infinite;
-  animation-play-state: paused;
-  pointer-events: none;
+  content: "→";
+  display: inline-block;
+  transition: transform 0.2s ease;
 }
 
 .cta:hover {
-  background: var(--color-accent-hover);
+  border-color: var(--color-accent);
 }
 
 .cta:hover::after {
-  opacity: 1;
-  animation-play-state: running;
+  transform: translateX(4px);
 }
 
 .cta:active {
   transform: scale(0.98);
-}
-
-@keyframes cta-border-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .cta--full {
@@ -364,9 +351,9 @@ button:focus-visible {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 72% 58% at 30% 40%, rgba(15, 43, 30, 0) 0%, rgba(9, 25, 17, 0.5) 45%, rgba(4, 12, 9, 0.96) 100%),
-    linear-gradient(to top, rgba(4, 12, 9, 0.8) 0%, rgba(4, 12, 9, 0) 32%),
-    linear-gradient(to bottom, rgba(15, 43, 30, 0.3) 0%, rgba(15, 43, 30, 0.7) 100%);
+    radial-gradient(ellipse 72% 58% at 30% 40%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.45) 45%, rgba(0, 0, 0, 0.85) 100%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 32%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.75) 100%);
 }
 
 /* Optional hero background video (see hero-video.js) — sits above the
@@ -414,7 +401,7 @@ button:focus-visible {
   aspect-ratio: 1;
   bottom: -18%;
   left: -6%;
-  background: #2f6349;
+  background: var(--color-decor-gray);
 }
 
 .blob {
@@ -428,7 +415,7 @@ button:focus-visible {
 }
 
 .blob--green {
-  background: #2f6349;
+  background: var(--color-decor-gray);
 }
 
 .hero__content {
@@ -455,7 +442,7 @@ button:focus-visible {
   display: inline-block;
   width: 100%;
   white-space: nowrap;
-  text-shadow: 0 4px 32px rgba(8, 22, 15, 0.85), 0 1px 3px rgba(8, 22, 15, 0.9);
+  text-shadow: 0 4px 32px rgba(0, 0, 0, 0.85), 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .hero__title-row--sm {
@@ -476,37 +463,7 @@ button:focus-visible {
   color: var(--color-text-muted);
   max-width: 420px;
   margin-bottom: 40px;
-  text-shadow: 0 2px 20px rgba(8, 22, 15, 0.8);
-}
-
-.hero__cta {
-  background: none;
-  color: var(--color-text);
-  padding: 0 0 7px;
-  border-radius: 0;
-  font-size: 1rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border-bottom: 1px solid var(--color-accent-faint-border);
-  transition: border-color 0.2s ease, transform 0.15s ease;
-}
-
-.hero__cta::after {
-  display: none;
-}
-
-.hero__cta:hover {
-  background: none;
-  border-color: var(--color-accent);
-}
-
-.hero__cta-arrow {
-  transition: transform 0.2s ease;
-}
-
-.hero__cta:hover .hero__cta-arrow {
-  transform: translateX(4px);
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
 }
 
 /* HUD-style corner labels: minimal, low-opacity status readouts rather
@@ -538,19 +495,19 @@ button:focus-visible {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #6fbf8b;
+  background: #e5e5e5;
   animation: hero-hud-pulse 2s ease-out infinite;
 }
 
 @keyframes hero-hud-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(111, 191, 139, 0.55);
+    box-shadow: 0 0 0 0 rgba(229, 229, 229, 0.55);
   }
   70% {
-    box-shadow: 0 0 0 6px rgba(111, 191, 139, 0);
+    box-shadow: 0 0 0 6px rgba(229, 229, 229, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(111, 191, 139, 0);
+    box-shadow: 0 0 0 0 rgba(229, 229, 229, 0);
   }
 }
 
@@ -619,7 +576,7 @@ button:focus-visible {
   line-height: 1.05;
   text-align: center;
   margin-bottom: 18px;
-  text-shadow: 0 4px 28px rgba(8, 22, 15, 0.75);
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.75);
   transform: translateY(var(--parallax-y, 0px)) skewY(var(--skew-deg, 0deg));
   will-change: transform;
 }
@@ -700,7 +657,7 @@ button:focus-visible {
   font-size: 1.05rem;
   max-width: 520px;
   margin: 0 auto 56px;
-  text-shadow: 0 2px 16px rgba(8, 22, 15, 0.7);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.7);
 }
 
 /* Cursor-following glow, shared by service/case/testimonial/value cards.
@@ -719,7 +676,7 @@ button:focus-visible {
   inset: 0;
   z-index: 0;
   opacity: 0;
-  background: radial-gradient(circle 180px at var(--glow-x, 50%) var(--glow-y, 50%), rgba(201, 122, 62, 0.35), transparent 70%);
+  background: radial-gradient(circle 180px at var(--glow-x, 50%) var(--glow-y, 50%), rgba(255, 255, 255, 0.1), transparent 70%);
   transition: opacity 0.3s ease;
   pointer-events: none;
 }
@@ -733,16 +690,13 @@ button:focus-visible {
 .card {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.16), var(--color-glass-bg) 60%);
-  backdrop-filter: blur(16px) saturate(150%);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  border: 1px solid var(--color-glass-border);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius);
   padding: 32px 24px;
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
   opacity: 0;
   transform: translateY(var(--reveal-y)) scale(var(--reveal-scale));
-  transition: opacity 0.45s var(--ease-punch), transform 0.4s var(--ease-punch), box-shadow 0.2s ease, border-color 0.2s ease, backdrop-filter 0.2s ease;
+  transition: opacity 0.45s var(--ease-punch), transform 0.4s var(--ease-punch), border-color 0.2s ease;
 }
 
 .card.is-visible {
@@ -752,11 +706,8 @@ button:focus-visible {
 
 .card:hover,
 .card.is-hover {
-  backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
-  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.45);
   transform: translateY(0) scale(1.06);
-  border-color: rgba(201, 122, 62, 0.55);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .card__icon {
@@ -855,16 +806,13 @@ button:focus-visible {
 /* Case cards */
 
 .case {
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.16), var(--color-glass-bg) 60%);
-  backdrop-filter: blur(16px) saturate(150%);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  border: 1px solid var(--color-glass-border);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
   opacity: 0;
   transform: translateY(var(--reveal-y)) scale(var(--reveal-scale));
-  transition: opacity 0.45s var(--ease-punch), transform 0.4s var(--ease-punch), box-shadow 0.2s ease, border-color 0.2s ease, backdrop-filter 0.2s ease;
+  transition: opacity 0.45s var(--ease-punch), transform 0.4s var(--ease-punch), border-color 0.2s ease;
 }
 
 .case.is-visible {
@@ -874,11 +822,8 @@ button:focus-visible {
 
 .case:hover,
 .case.is-hover {
-  backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
-  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.45);
   transform: translateY(0) scale(1.06);
-  border-color: rgba(201, 122, 62, 0.55);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .case__image {
@@ -886,7 +831,7 @@ button:focus-visible {
   z-index: 1;
   aspect-ratio: 4 / 3;
   background: var(--color-placeholder);
-  border: 1px solid var(--color-accent-faint-border);
+  border: 1px solid var(--color-border);
 }
 
 /* Hover-to-play video, added by script.js when a .case carries data-video;
@@ -1020,7 +965,7 @@ button:focus-visible {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(15, 43, 30, 0.65);
+  background: rgba(10, 10, 10, 0.65);
   border: 1px solid var(--color-glass-border);
   backdrop-filter: blur(8px) saturate(150%);
   -webkit-backdrop-filter: blur(8px) saturate(150%);
@@ -1033,7 +978,7 @@ button:focus-visible {
 }
 
 .showreel__btn:hover {
-  background: rgba(15, 43, 30, 0.88);
+  background: rgba(10, 10, 10, 0.88);
 }
 
 .showreel__btn:active {
@@ -1079,7 +1024,7 @@ button:focus-visible {
   color: var(--color-text-muted);
   opacity: 0.6;
   margin-bottom: 24px;
-  text-shadow: 0 2px 14px rgba(8, 22, 15, 0.7);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
 }
 
 .clients__track {
@@ -1235,7 +1180,7 @@ button:focus-visible {
 .values__label {
   font-family: var(--font-serif);
   font-size: 1.3rem;
-  text-shadow: 0 2px 16px rgba(8, 22, 15, 0.7);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.7);
 }
 
 .values__stage-wrap {
@@ -1276,7 +1221,7 @@ button:focus-visible {
   z-index: 3;
   transform: translate(-50%, -50%) translateX(0) rotateY(0deg) scale(1);
   box-shadow: 0 28px 56px rgba(0, 0, 0, 0.45);
-  border-color: rgba(201, 122, 62, 0.4);
+  border-color: var(--color-accent-faint-border);
 }
 
 .values__card.is-prev,
@@ -1439,7 +1384,7 @@ button:focus-visible {
   text-align: center;
   padding: 10px;
   border-radius: 50%;
-  background: rgba(15, 43, 30, 0.72);
+  background: rgba(10, 10, 10, 0.72);
   opacity: 0;
   transform: translateY(8px);
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -1507,16 +1452,13 @@ button:focus-visible {
 /* Testimonials */
 
 .testimonial {
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.16), var(--color-glass-bg) 60%);
-  backdrop-filter: blur(16px) saturate(150%);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  border: 1px solid var(--color-glass-border);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius);
   padding: 28px 24px;
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
   opacity: 0;
   transform: translateY(var(--reveal-y)) scale(var(--reveal-scale));
-  transition: opacity 0.45s var(--ease-punch), transform 0.4s var(--ease-punch), box-shadow 0.2s ease, border-color 0.2s ease, backdrop-filter 0.2s ease;
+  transition: opacity 0.45s var(--ease-punch), transform 0.4s var(--ease-punch), border-color 0.2s ease;
 }
 
 .testimonial.is-visible {
@@ -1526,11 +1468,8 @@ button:focus-visible {
 
 .testimonial:hover,
 .testimonial.is-hover {
-  backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
-  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.45);
   transform: translateY(0) scale(1.06);
-  border-color: rgba(201, 122, 62, 0.55);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .testimonial__text {
@@ -1672,7 +1611,7 @@ button:focus-visible {
 .contacts__text {
   color: var(--color-text-muted);
   margin-bottom: 24px;
-  text-shadow: 0 2px 16px rgba(8, 22, 15, 0.7);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.7);
 }
 
 .contacts__list {
@@ -1681,7 +1620,7 @@ button:focus-visible {
   flex-direction: column;
   gap: 10px;
   color: var(--color-text-muted);
-  text-shadow: 0 2px 16px rgba(8, 22, 15, 0.7);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.7);
 }
 
 .contacts__list span {
@@ -1728,7 +1667,7 @@ button:focus-visible {
 
 .form__group input::placeholder,
 .form__group textarea::placeholder {
-  color: #6f7d6f;
+  color: var(--color-text-muted);
 }
 
 .form__group input:focus,
@@ -1839,7 +1778,7 @@ button:focus-visible {
 .modal__overlay {
   position: absolute;
   inset: 0;
-  background: rgba(5, 15, 10, 0.75);
+  background: rgba(0, 0, 0, 0.75);
 }
 
 .modal__content {

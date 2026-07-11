@@ -149,10 +149,10 @@
       '  float n = fbm(samplePos);',
       '  n = n * 0.5 + 0.5;',
       '',
-      '  vec3 colorBase = vec3(0.0588, 0.1686, 0.1176);',
-      '  vec3 colorMid  = vec3(0.1137, 0.2275, 0.1647);',
-      '  vec3 colorHi   = vec3(0.7882, 0.4784, 0.2431);',
-      '  vec3 colorDeep = vec3(0.0314, 0.0863, 0.0588);',
+      '  vec3 colorBase = vec3(0.039, 0.039, 0.039);',
+      '  vec3 colorMid  = vec3(0.071, 0.071, 0.071);',
+      '  vec3 colorHi   = vec3(0.910, 0.890, 0.847);',
+      '  vec3 colorDeep = vec3(0.0, 0.0, 0.0);',
       '',
       '  vec3 color = mix(colorBase, colorMid, smoothstep(0.25, 0.65, n));',
       '',
@@ -338,13 +338,13 @@
           x: lerp(w * 0.62, cx - w * 0.02, progress) + Math.sin(t * 0.0006) * 18 + offsetX * PARALLAX[0],
           y: lerp(h * 0.1, cy, progress) + Math.cos(t * 0.0005) * 18 + offsetY * PARALLAX[0],
           r: lerp(w * 0.24, w * 0.17, progress),
-          color: 'rgba(201, 122, 62, ' + (0.5 - progress * 0.15).toFixed(3) + ')'
+          color: 'rgba(255, 255, 255, ' + (0.22 - progress * 0.07).toFixed(3) + ')'
         },
         {
           x: lerp(w * 0.85, cx + w * 0.1, progress) + Math.cos(t * 0.0007) * 22 + offsetX * PARALLAX[1],
           y: lerp(h * 0.55, cy + h * 0.05, progress) + Math.sin(t * 0.0006) * 22 + offsetY * PARALLAX[1],
           r: lerp(w * 0.19, w * 0.25, progress),
-          color: 'rgba(79, 122, 74, ' + (0.45 + progress * 0.2).toFixed(3) + ')'
+          color: 'rgba(200, 200, 200, ' + (0.2 + progress * 0.08).toFixed(3) + ')'
         }
       ];
 
@@ -353,7 +353,7 @@
           x: lerp(w * 0.68, cx + w * 0.02, progress) + Math.sin(t * 0.0004 + 2) * 14 + offsetX * PARALLAX[2],
           y: lerp(h * 0.85, cy + h * 0.14, progress) + Math.cos(t * 0.0004) * 14 + offsetY * PARALLAX[2],
           r: lerp(w * 0.13, w * 0.1, progress),
-          color: 'rgba(201, 122, 62, ' + (0.3 + progress * 0.1).toFixed(3) + ')'
+          color: 'rgba(255, 255, 255, ' + (0.14 + progress * 0.05).toFixed(3) + ')'
         });
       }
 
@@ -370,7 +370,7 @@
       if (!isMobile && spotAlpha > 0.01) {
         ctx.filter = 'blur(45px)';
         ctx.beginPath();
-        ctx.fillStyle = 'rgba(201, 122, 62, ' + (0.85 * spotAlpha).toFixed(3) + ')';
+        ctx.fillStyle = 'rgba(232, 227, 216, ' + (0.7 * spotAlpha).toFixed(3) + ')';
         ctx.arc(sx * w, sy * h, 100, 0, Math.PI * 2);
         ctx.fill();
         ctx.filter = 'none';
@@ -380,7 +380,7 @@
       // mix, done here as a flat overlay since canvas2D has no shader mix.
       var deepAlpha = Math.max(0, progress - 0.5) * 0.8;
       if (deepAlpha > 0.01) {
-        ctx.fillStyle = 'rgba(4, 12, 8, ' + deepAlpha.toFixed(3) + ')';
+        ctx.fillStyle = 'rgba(0, 0, 0, ' + deepAlpha.toFixed(3) + ')';
         ctx.fillRect(0, 0, w, h);
       }
     }
