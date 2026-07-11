@@ -338,6 +338,26 @@ button:focus-visible {
   overflow: hidden;
 }
 
+/* Optional hero background video (see hero-video.js) — sits above the
+   page-wide shader canvas but behind the blobs/text, scoped to the hero
+   only. Only ever created if HERO_VIDEO_URL is set, so this rule is
+   inert otherwise. Fades in on 'canplay' rather than popping in hard. */
+.hero__video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.hero__video.is-ready {
+  opacity: 1;
+}
+
 /* Extra parallax layer independent of the scroll-driven WebGL background;
    these drift on scroll via script.js while the hero is in view. */
 .hero__blob {

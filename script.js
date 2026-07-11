@@ -301,9 +301,13 @@
 })();
 
 (function () {
-  // TODO: добавить видео кейсов — задайте атрибут data-video="url.mp4" на
-  // .case, и при hover оно проиграется (autoplay, muted, loop) поверх
-  // плейсхолдера; без атрибута кейс остаётся на статичном плейсхолдере.
+  // Case video: set data-video="url.mp4" on a .case (see index.html) and
+  // it plays (muted, loop) over the gradient placeholder — on hover for
+  // pointer devices, or automatically while scrolled into view on
+  // touch/mobile, since there's no hover there. Cases with no data-video
+  // are untouched: same static placeholder as always.
+  var isMobile = window.matchMedia('(max-width: 720px)').matches;
+
   document.querySelectorAll('.case').forEach(function (caseEl) {
     var videoUrl = caseEl.getAttribute('data-video');
     if (!videoUrl) return;
@@ -320,16 +324,34 @@
     video.preload = 'none';
     imageEl.appendChild(video);
 
-    caseEl.addEventListener('mouseenter', function () {
+    function playVideo() {
       imageEl.classList.add('is-video-active');
-      video.currentTime = 0;
       video.play().catch(function () {});
-    });
+    }
 
-    caseEl.addEventListener('mouseleave', function () {
+    function stopVideo() {
       imageEl.classList.remove('is-video-active');
       video.pause();
-    });
+      video.currentTime = 0;
+    }
+
+    if (isMobile) {
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              playVideo();
+            } else {
+              stopVideo();
+            }
+          });
+        }, { threshold: 0.5 });
+        observer.observe(caseEl);
+      }
+    } else {
+      caseEl.addEventListener('mouseenter', playVideo);
+      caseEl.addEventListener('mouseleave', stopVideo);
+    }
   });
 })();
 

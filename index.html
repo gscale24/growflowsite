@@ -120,11 +120,15 @@
     <div class="container">
       <h2 class="section__title"><span class="section__num">02</span>Кейсы</h2>
       <p class="section__subtitle">Примеры проектов — контент будет добавлен позже</p>
-      <!-- TODO: добавить видео кейсов — если у .case задан data-video, при
-           hover оно проигрывается (autoplay, muted, loop) поверх плейсхолдера;
-           без data-video плейсхолдер остаётся статичным, как сейчас. -->
+      <!-- Video-per-case data lives on each .case as a data-video attribute
+           (this site has no JS data/props layer, so the DOM attribute is
+           the "data structure" — see script.js for how it's consumed).
+           Empty for now: TODO: вставить ссылку на сгенерированное видео
+           сюда for each case once real footage exists. While empty, a
+           case behaves exactly as it does today (static gradient
+           placeholder) — nothing else changes. -->
       <div class="portfolio__grid">
-        <div class="case glow-card case--large">
+        <div class="case glow-card case--large" data-video="">
           <div class="case__image placeholder-visual" aria-hidden="true">
             <span class="blob blob--orange blob--a"></span>
             <span class="blob blob--green blob--b"></span>
@@ -135,7 +139,7 @@
             <p class="case__text">Краткое описание задачи и результата — плейсхолдер.</p>
           </div>
         </div>
-        <div class="case glow-card case--b">
+        <div class="case glow-card case--b" data-video="">
           <div class="case__image placeholder-visual" aria-hidden="true">
             <span class="blob blob--orange blob--a"></span>
             <span class="blob blob--green blob--b"></span>
@@ -146,7 +150,7 @@
             <p class="case__text">Краткое описание задачи и результата — плейсхолдер.</p>
           </div>
         </div>
-        <div class="case glow-card case--c">
+        <div class="case glow-card case--c" data-video="">
           <div class="case__image placeholder-visual" aria-hidden="true">
             <span class="blob blob--orange blob--a"></span>
             <span class="blob blob--green blob--b"></span>
@@ -390,5 +394,6 @@
 <script src="intro.js"></script>
 <script src="script.js"></script>
 <script src="hero-shader.js"></script>
+<script src="hero-video.js"></script>
 </body>
 </html>
